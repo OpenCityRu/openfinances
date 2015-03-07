@@ -18,12 +18,12 @@ public class SimpleRunner implements Runnable {
 	public static void main(String[] args) throws ConverterException {
 
 		String[][] settings = {
-				{"name","output"},
+				{"name","Dachnoe_vedomst_2014_original"},
 				{"format","csv"},
 				{"version","1.0"},
-				{"period","2015-01-01"},
+				{"period","2014-01-01"},
 				{"region","Долгое озеро"},
-				{"file","files/test_ozero.xls"},
+				{"file","files/Dachnoe_vedomst_2014_original.xls"},
 				{"stage","PR"},
 				{"level","M"},
 				{"type","E"},
@@ -44,6 +44,8 @@ public class SimpleRunner implements Runnable {
 		converter.addModelCreatorSample(new SpendingTypeCreator());
 		
 		converter.convert();
+		
+		System.out.println("Finished.");
 		
 	}
 

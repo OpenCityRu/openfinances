@@ -19,7 +19,9 @@ import org.openbudget.model.GlobalSettings;
 import org.openbudget.model.InputSettings;
 import org.openbudget.model.MetaData;
 import org.openbudget.model.SourceTable;
-import org.openbudget.util.ConverterUtils;
+import org.openbudget.russia.converter.impl.SpendingTypeCreator;
+import org.openbudget.russia.model.SpendingType;
+import org.openbudget.utils.ConverterUtils;
 
 /**
  * Base class Converter doesn't have realization. All specific converters must have own realization.
@@ -103,19 +105,19 @@ abstract public class OBFConverter<T extends BudgetItem, M extends MetaData> {
 	/**
 	 * this method is fully responsible for converting and includes 5 stages:
 	 * <ul>
-	 * <li><strong>preparation</strong> - read file and check errors. 
-	 * <b>How to use prepare() method?</b> 
+	 * <li><strong>read file</strong> - read file and check errors. 
+	 * <b>How to use beforeReadFile() method?</b> 
 	 * E.g. developer can change mechanism of getting/uploading file.</li>
 	 * 
-	 * <li><strong>actions before converting</strong> - prepare data for parsing (create matrix of source table). 
+	 * <li><strong>create source table and models</strong> - prepare data for parsing (create matrix of source table) and converting matrix into objects (models). 
 	 * <b>How to use beforeConverting() method?</b>
 	 * For example developer can add some actions that can improve source file and put it into a stream before using BudgetItemReader implementation.</li>
 	 * 
-	 * <li><strong>converting</strong> - converting matrix into objects (models). 
-	 * It includes creating raw objects (without populating standard values, ids, versions).</li>
+	 * <li><strong>create budget items</strong> - Call abstract createBudgetItems() (which should be realized in a child of OBFConverter).  
+	 * It includes creating raw objects and add specific models in each BudgetItem (without populating standard values, ids, versions).</li>
 	 * <b>How to use converting() method?</b> Make changes in Source Table.
 	 * 
-	 * <li><strong>actions after converting</strong> - finalization of converting process and prepare for saving in ouput format. 
+	 * <li><strong>finalize budget items</strong> - finalization of converting process and prepare for saving in output format. 
 	 * It includes populating standard values, id, versions, creating metadata.</li>
 	 * <b>How to use converting() method?</b> Introduce some actions for making information about id, versions are more correct. 
 	 * 
@@ -135,8 +137,8 @@ abstract public class OBFConverter<T extends BudgetItem, M extends MetaData> {
 		
 		//stage 1: preparation
 		
-		//developer can create own "prepare" additional method that could be invoked before reading stream
-		prepare(); 
+		//developer can create own "beforeReadFile" additional method that could be invoked before reading stream
+		beforeReadFile(); 
 		//... and now actions
 		
 		// check file
@@ -151,17 +153,10 @@ abstract public class OBFConverter<T extends BudgetItem, M extends MetaData> {
 		//stage 2: actions before converting
 		
 		//developer can create "before" method
-		beforeConverting();
+		beforeCreateSourceTable();
 		//... and now standard actions (correct for all OBF converters that match requirements)
 		
 		matrix = fileReader.createSourceTable(stream);
-		
-		//stage 3: converting
-		
-		//developer can create own "converting actions" 
-		converting();
-		//... and now actions (correct for all OBF converters that match requirements)
-		
 		
 		for(ModelsCreator model : modelsCreators){
 			
@@ -170,12 +165,19 @@ abstract public class OBFConverter<T extends BudgetItem, M extends MetaData> {
 			
 		}
 		
+		//stage 3: converting
+		
+		//developer can create own "converting actions" 
+		beforeCreateBudgetItems();
+		//... and now actions (correct for all OBF converters that match requirements)
+		
+		
 		budgetItems = createBudgetItems();
 		
 		//stage 4: actions after converting
 
 		//developer can create own "after" 
-		afterConverting();
+		afterCreateBudgetItems();
 		//... and now actions (correct for all OBF converters that match requirements)
 		
 		for(T item : budgetItems){
@@ -194,7 +196,7 @@ abstract public class OBFConverter<T extends BudgetItem, M extends MetaData> {
 		
 		//developer can create own "save" additional method
 		
-		save();
+		beforeSave();
 		//... and now standard actions (correct for all OBF converters that match requirements)
 		
 		saver.save(budgetItems, metadata, settings.getOutputFileName());
@@ -230,23 +232,24 @@ abstract public class OBFConverter<T extends BudgetItem, M extends MetaData> {
 
 	/**
 	 * Overriding this method is optional and don't need to be done in general cases.
-	 * Some actions could be executed in child class before starting this process (stage 1: preparation) in base class.
+	 * Some actions could be executed in child class before starting this process (stage 1: read file) in base class.
 	 * This method will be invoked before this process in parent class is started.
 	 */
-	abstract protected void prepare();
+	abstract protected void beforeReadFile();
 	
 	/**
 	 * Overriding this method is optional and don't need to be done in general cases.
-	 * Some actions could be executed in child class before starting this process (stage 2: actions before converting) in base class
+	 * Some actions could be executed in child class before starting this process (stage 2: Create source model) in base class
 	 * This method will be invoked before this process in parent class is started.
+	 * @throws ConverterException 
 	 */
-	abstract protected void beforeConverting();
+	abstract protected void beforeCreateSourceTable() throws ConverterException;
 	
 	/**
-	 * Some actions could be executed in child class before starting this process (stage 3: converting) in base class
+	 * Some actions could be executed in child class before starting this process (stage 3: CreateBudgetItems) in base class
 	 * This method will be invoked before this process in parent class is started.
 	 */
-	abstract protected void afterConverting();
+	abstract protected void afterCreateBudgetItems();
 	
 	/**
 	 * Overriding this method is optional and don't need to be done in general cases.
@@ -254,14 +257,14 @@ abstract public class OBFConverter<T extends BudgetItem, M extends MetaData> {
 	 * This method will be invoked before this process in parent class is started.
 	 * @throws ConverterException 
 	 */
-	abstract protected void converting() throws ConverterException;
+	abstract protected void beforeCreateBudgetItems() throws ConverterException;
 	
 	/**
 	 * Overriding this method is optional and don't need to be done in general cases.
 	 * Some actions could be executed in child class before starting this process (stage 5: save) in base class
 	 * This method will be invoked before this process in parent class will be started.
 	 */
-	abstract protected void save();
+	abstract protected void beforeSave();
 	
 	/**
 	 * User and developer can get it.

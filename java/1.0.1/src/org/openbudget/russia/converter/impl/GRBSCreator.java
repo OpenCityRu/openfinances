@@ -6,6 +6,7 @@ import org.openbudget.converter.face.ModelsCreator;
 import org.openbudget.exception.ConverterException;
 import org.openbudget.model.SourceTable;
 import org.openbudget.russia.model.GRBS;
+import org.openbudget.utils.ConverterUtils;
 
 public class GRBSCreator implements ModelsCreator<GRBS> {
 	
@@ -20,10 +21,8 @@ public class GRBSCreator implements ModelsCreator<GRBS> {
 
 			if ((table.getCells()[i][2] == null || table.getCells()[i][2]
 					.isEmpty())
-					&& (!table.getCells()[i][0].isEmpty()
-							&& table.getCells()[i][0] != null
-							&& !table.getCells()[i][1].isEmpty() && table
-							.getCells()[i][1] != null)) {
+					&& (table.getCells()[i][0] != null && !table.getCells()[i][0].isEmpty()
+							&& table.getCells()[i][1] != null && !table.getCells()[i][1].isEmpty())) {
 				GRBS grbs = new GRBS();
 				grbs.setName(table.getCells()[i][0]);
 				grbs.setCode(table.getCells()[i][1]);
@@ -38,7 +37,7 @@ public class GRBSCreator implements ModelsCreator<GRBS> {
 	@Override
 	public void saveModels(ArrayList<GRBS> models) throws ConverterException {
 		
-		objects = models;
+		objects = ConverterUtils.createUniqueList(models);
 		
 	}
 

@@ -3,7 +3,7 @@ package org.openbudget.model;
 import org.openbudget.converter.OBFConverter;
 import org.openbudget.exception.ConverterException;
 import org.openbudget.exception.InputSettingsException;
-import org.openbudget.util.ConverterUtils;
+import org.openbudget.utils.ConverterUtils;
 
 /**
  * This class contains initial settings for OBFConverter.

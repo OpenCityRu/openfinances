@@ -3,6 +3,7 @@ package org.openbudget.russia.converter.impl;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,7 +12,7 @@ import org.openbudget.converter.CSVSaver;
 import org.openbudget.converter.face.Saver;
 import org.openbudget.russia.model.BudgetItemRus;
 import org.openbudget.russia.model.MetaDataRus;
-import org.openbudget.util.ConverterUtils;
+import org.openbudget.utils.ConverterUtils;
 
 public class CSVSaverRus extends CSVSaver implements Saver<BudgetItemRus,MetaDataRus> {
 
@@ -58,7 +59,7 @@ public class CSVSaverRus extends CSVSaver implements Saver<BudgetItemRus,MetaDat
 				
 				row.put("Id", item.getId());
 				row.put("Period", ConverterUtils.createStringDate(item.getPeriod()));
-				row.put("Amount", (item.getAmount()!=null) ? Double.toString(item.getAmount()): "");
+				row.put("Amount", (item.getAmount()!=null) ? String.format("%.2f", item.getAmount()): "");
 				row.put("Region", item.getRegion());
 				row.put("Version", item.getVersion());
 				row.put("DocVersion", item.getDocVersion());

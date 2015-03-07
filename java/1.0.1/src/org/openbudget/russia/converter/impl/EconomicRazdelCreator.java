@@ -6,6 +6,7 @@ import org.openbudget.converter.face.ModelsCreator;
 import org.openbudget.exception.ConverterException;
 import org.openbudget.model.SourceTable;
 import org.openbudget.russia.model.EconomicRazdel;
+import org.openbudget.utils.ConverterUtils;
 import org.openbudget.utils.Log;
 
 public class EconomicRazdelCreator implements ModelsCreator<EconomicRazdel> {
@@ -20,12 +21,9 @@ public class EconomicRazdelCreator implements ModelsCreator<EconomicRazdel> {
 
 			if ((table.getCells()[i][3] == null || table.getCells()[i][3]
 					.isEmpty())
-					&& (!table.getCells()[i][0].isEmpty()
-							&& table.getCells()[i][0] != null
-							&& !table.getCells()[i][1].isEmpty()
-							&& table.getCells()[i][1] != null
-							&& !table.getCells()[i][2].isEmpty() && table
-							.getCells()[i][2] != null)) {
+					&& (table.getCells()[i][0] != null && !table.getCells()[i][0].isEmpty()
+							&& table.getCells()[i][1] != null && !table.getCells()[i][1].isEmpty()
+									&& table.getCells()[i][2] != null && !table.getCells()[i][2].isEmpty())) {
 
 				EconomicRazdel razdel = new EconomicRazdel();
 				razdel.setName(table.getCells()[i][0]);
@@ -74,7 +72,7 @@ public class EconomicRazdelCreator implements ModelsCreator<EconomicRazdel> {
 	public void saveModels(ArrayList<EconomicRazdel> models)
 			throws ConverterException {
 		
-		objects = models;
+		objects = ConverterUtils.createUniqueList(models);
 		
 	}
 

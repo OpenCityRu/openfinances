@@ -1,25 +1,14 @@
 package org.openbudget.russia.converter;
 
-import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 import org.openbudget.converter.OBFConverter;
-import org.openbudget.converter.face.BudgetFileReader;
-import org.openbudget.converter.face.BudgetItemPrototype;
 import org.openbudget.converter.face.ModelsCreator;
-import org.openbudget.converter.face.Saver;
 import org.openbudget.exception.BrokenBudgetItemConverterException;
 import org.openbudget.exception.ConverterException;
-import org.openbudget.exception.InputSettingsException;
 import org.openbudget.model.Admin;
 import org.openbudget.model.BudgetItem;
 import org.openbudget.model.Classification;
-import org.openbudget.model.InputSettings;
 import org.openbudget.russia.converter.impl.ArticleCreator;
 import org.openbudget.russia.converter.impl.EconomicRazdelCreator;
 import org.openbudget.russia.converter.impl.GRBSCreator;
@@ -31,10 +20,8 @@ import org.openbudget.russia.model.EconomicRazdel;
 import org.openbudget.russia.model.GRBS;
 import org.openbudget.russia.model.MetaDataRus;
 import org.openbudget.russia.model.SpendingType;
-import org.openbudget.util.ConverterUtils;
+import org.openbudget.utils.ConverterUtils;
 import org.openbudget.utils.Log;
-
-import au.com.bytecode.opencsv.CSVWriter;
 
 /**
  * Specific OBF converter for russian budgets.
@@ -47,8 +34,7 @@ public class OBFConverterRus extends OBFConverter<BudgetItemRus, MetaDataRus> {
 	protected Integer currentId = 1;
 	protected String docVersion = "1";
 
-	public OBFConverterRus()
-			throws ConverterException {
+	public OBFConverterRus() throws ConverterException {
 
 		super(new GlobalSettingsRus());
 
@@ -89,18 +75,12 @@ public class OBFConverterRus extends OBFConverter<BudgetItemRus, MetaDataRus> {
 
 		for (int i = 0; i < matrix.rows(); i++) {
 
-			if (!matrix.getCells()[i][0].isEmpty()
-					&& matrix.getCells()[i][0] != null
-					&& !matrix.getCells()[i][1].isEmpty()
-					&& matrix.getCells()[i][1] != null
-					&& !matrix.getCells()[i][2].isEmpty()
-					&& matrix.getCells()[i][2] != null
-					&& !matrix.getCells()[i][3].isEmpty()
-					&& matrix.getCells()[i][3] != null
-					&& !matrix.getCells()[i][4].isEmpty()
-					&& matrix.getCells()[i][4] != null
-					&& !matrix.getCells()[i][5].isEmpty()
-					&& matrix.getCells()[i][5] != null) {
+			if (matrix.getCells()[i][0] != null && !matrix.getCells()[i][0].isEmpty()
+					&& matrix.getCells()[i][1] != null && !matrix.getCells()[i][1].isEmpty()
+							&& matrix.getCells()[i][2] != null && !matrix.getCells()[i][2].isEmpty()
+									&& matrix.getCells()[i][3] != null && !matrix.getCells()[i][3].isEmpty()
+											&& matrix.getCells()[i][4] != null && !matrix.getCells()[i][4].isEmpty()
+													&& matrix.getCells()[i][5] != null && !matrix.getCells()[i][5].isEmpty()) {
 
 				BudgetItemRus item = new BudgetItemRus();
 				// item.setName(matrix.getCells()[i][0]);
@@ -113,15 +93,17 @@ public class OBFConverterRus extends OBFConverter<BudgetItemRus, MetaDataRus> {
 
 				try {
 					item.setAmount(1000 * Double.valueOf(matrix.getCells()[i][5]));
+
+					item.setSourceRowNumber(i);
+
+					budgetItems.add(item);
+
 				} catch (NumberFormatException e) {
-					Log.postWarn("Row " + i
+					Log.postWarn("Row " + (i+1)
 							+ " is identified as a not budget item and missed.");
 					continue;
 				}
 
-				item.setSourceRowNumber(i);
-
-				budgetItems.add(item);
 			}
 
 		}
@@ -136,10 +118,22 @@ public class OBFConverterRus extends OBFConverter<BudgetItemRus, MetaDataRus> {
 		for (BudgetItemRus item : budgetItems) {
 
 			item.setArticle(findArticle(modelsCreators, item.getArticleCode()));
+			if(item.getArticle()==null){
+				Log.postWarn("Article with code \""+item.getArticleCode()+"\" not found in collection of Articles.");
+			}
 			item.setGrbs(findGRBS(modelsCreators, item.getGrbsCode()));
+			if(item.getGrbs()==null){
+				Log.postWarn("GRBS with code \""+item.getGrbsCode()+"\" not found in collection of GRBS.");
+			}
 			item.setRazdel(findRazdel(modelsCreators, item.getRazdelCode()));
+			if(item.getRazdel()==null){
+				Log.postWarn("Razdel with code \""+item.getRazdelCode()+"\" not found in collection of Razdels.");
+			}
 			item.setSpendingType(findSpendingType(modelsCreators,
 					item.getSpendingCode()));
+			if(item.getSpendingCode()==null){
+				Log.postWarn("Spending Type with code \""+item.getSpendingCode()+"\" not found in collection of Spending types.");
+			}
 
 			try {
 
@@ -189,8 +183,8 @@ public class OBFConverterRus extends OBFConverter<BudgetItemRus, MetaDataRus> {
 				"currency"));
 		metadata.setDataDocLinks(ConverterUtils.getValueByKey(
 				settings.getParams(), "dataDocLinks"));
-		metadata.setDataFiles(ConverterUtils.getValueByKey(settings.getParams(),
-				"dataFiles"));
+		metadata.setDataFiles(ConverterUtils.getValueByKey(
+				settings.getParams(), "dataFiles"));
 		metadata.setDataSchemeLink(ConverterUtils.getValueByKey(
 				settings.getParams(), "dataSchemeLink"));
 		metadata.setDepartmentAddress(ConverterUtils.getValueByKey(
@@ -217,30 +211,36 @@ public class OBFConverterRus extends OBFConverter<BudgetItemRus, MetaDataRus> {
 	}
 
 	@Override
-	protected void prepare() {
+	protected void beforeReadFile() {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	protected void beforeConverting() {
-		// TODO Auto-generated method stub
+	protected void beforeCreateSourceTable() throws ConverterException {
+
+	}
+
+	/**
+	 * We use this method to clean repeated objects in Spending Type (because in
+	 * comparison with other dimensions these objects are not fully unique in
+	 * one budget file.
+	 * 
+	 * @throws ConverterException
+	 */
+	@Override
+	protected void beforeCreateBudgetItems() throws ConverterException {
+		
+		
+	}
+
+	@Override
+	protected void afterCreateBudgetItems() {
 
 	}
 
 	@Override
-	protected void afterConverting() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	protected void converting() throws ConverterException {
-
-	}
-
-	@Override
-	protected void save() {
+	protected void beforeSave() {
 		// TODO Auto-generated method stub
 	}
 
@@ -248,7 +248,7 @@ public class OBFConverterRus extends OBFConverter<BudgetItemRus, MetaDataRus> {
 			ArrayList<ModelsCreator> modelsCreators, String spendingCode)
 			throws ConverterException {
 
-		ArrayList<SpendingType> list = ConverterUtilsRus.getModelsByType(
+		ArrayList<SpendingType> list = ConverterUtils.getModelsByType(
 				modelsCreators, SpendingTypeCreator.class);
 		SpendingType type = null;
 
@@ -269,7 +269,7 @@ public class OBFConverterRus extends OBFConverter<BudgetItemRus, MetaDataRus> {
 	private EconomicRazdel findRazdel(ArrayList<ModelsCreator> modelsCreators,
 			String razdelCode) throws ConverterException {
 
-		ArrayList<EconomicRazdel> list = ConverterUtilsRus.getModelsByType(
+		ArrayList<EconomicRazdel> list = ConverterUtils.getModelsByType(
 				modelsCreators, EconomicRazdelCreator.class);
 		EconomicRazdel razdel = null;
 
@@ -289,8 +289,8 @@ public class OBFConverterRus extends OBFConverter<BudgetItemRus, MetaDataRus> {
 	private GRBS findGRBS(ArrayList<ModelsCreator> modelsCreators,
 			String grbsCode) throws ConverterException {
 
-		ArrayList<GRBS> list = ConverterUtilsRus.getModelsByType(
-				modelsCreators, GRBSCreator.class);
+		ArrayList<GRBS> list = ConverterUtils.getModelsByType(modelsCreators,
+				GRBSCreator.class);
 		GRBS grbs = null;
 
 		for (GRBS g : list) {
@@ -309,7 +309,7 @@ public class OBFConverterRus extends OBFConverter<BudgetItemRus, MetaDataRus> {
 	private Article findArticle(ArrayList<ModelsCreator> modelsCreators,
 			String articleCode) throws ConverterException {
 
-		ArrayList<Article> list = ConverterUtilsRus.getModelsByType(
+		ArrayList<Article> list = ConverterUtils.getModelsByType(
 				modelsCreators, ArticleCreator.class);
 		Article article = null;
 

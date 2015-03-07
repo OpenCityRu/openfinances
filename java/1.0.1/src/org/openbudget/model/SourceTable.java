@@ -12,6 +12,10 @@ protected String[][] cells;
 		return cells;
 	}
 	
+	public String getCell(int i, int j) {
+		return cells[i][j];
+	}
+	
 	public void addCell(int row, int col, String value){
 		cells[row][col] = value;
 	}

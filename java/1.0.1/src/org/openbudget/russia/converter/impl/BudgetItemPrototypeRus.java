@@ -10,7 +10,6 @@ public class BudgetItemPrototypeRus implements BudgetItemPrototype<BudgetItemRus
 	@Override
 	public void copyValuesIn(BudgetItemRus targetedItem) {
 		
-		targetedItem.setAmount(budgetItem.getAmount());
 		targetedItem.setDate(budgetItem.getDate());
 		targetedItem.setLevel(budgetItem.getLevel());
 		targetedItem.setStage(budgetItem.getStage());

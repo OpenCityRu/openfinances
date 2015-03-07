@@ -1,18 +1,23 @@
-package org.openbudget.util;
+package org.openbudget.utils;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.openbudget.converter.OBFConverter;
+import org.openbudget.converter.face.ModelsCreator;
 import org.openbudget.exception.ConverterException;
 import org.openbudget.exception.InputSettingsException;
+import org.openbudget.exception.StandardConverterException;
 import org.openbudget.model.SourceTable;
-import org.openbudget.utils.Log;
 
 public class ConverterUtils {
 
@@ -56,14 +61,15 @@ public class ConverterUtils {
 	}
 
 	public static String createStringDate(Date period) {
-		
+
 		Calendar cal = Calendar.getInstance();
-	    cal.setTime(period);
-	    int year = cal.get(Calendar.YEAR);
-	    int month = cal.get(Calendar.MONTH);
-	    int day = cal.get(Calendar.DAY_OF_MONTH);
-		return year+"-"+month+"-"+day;
-		
+		cal.setTime(period);
+		// int year = cal.get(Calendar.YEAR);
+		// int month = cal.get(Calendar.MONTH);
+		// int day = cal.get(Calendar.DAY_OF_MONTH);
+		// return year+"-"+month+"-"+day;
+		return cal.get(Calendar.YEAR) + "";
+
 	}
 
 	public static String getValueByKey(String[][] settings, String key)
@@ -105,6 +111,60 @@ public class ConverterUtils {
 		}
 		return list;
 
+	}
+
+	// public static <T> ArrayList<T> getModelsByType(
+	// ArrayList<ModelsCreator> models, T emptyInstance) throws
+	// ConverterException {
+	//
+	// for (ModelsCreator model: models){
+	// if(model.getModels() != null && model.getModels().size()!=0){
+	// if(model.getModels().get(0).getClass().isInstance(emptyInstance)){
+	// return model.getModels();
+	// }
+	// }
+	// }
+	//
+	// throw new StandardConverterException("Unknown creator model.");
+	// }
+
+	public static <T> ArrayList<T> getModelsByType(
+			ArrayList<ModelsCreator> modelsCreators, Class clazz)
+			throws ConverterException {
+
+		for (ModelsCreator model : modelsCreators) {
+			if (clazz.isInstance(model)) {
+				return model.getModels();
+			}
+		}
+
+		throw new StandardConverterException("Unknown Model Type");
+	}
+
+	public static <T> ArrayList<T> createUniqueList(ArrayList<T> originalListObj) {
+
+		ArrayList<T> newList = new ArrayList<T>();
+
+		for (T obj : originalListObj) {
+
+			if (!newList.contains(obj)) {
+				newList.add(obj);
+			}
+
+		}
+
+		return newList;
+	}
+
+	public static <T> T getModelsCreator(ArrayList<ModelsCreator> models,
+			T emptyInstance) {
+
+		for (ModelsCreator model : models) {
+			if (model.getClass().isInstance(emptyInstance)) {
+				return (T) model;
+			}
+		}
+		return null;
 	}
 
 }

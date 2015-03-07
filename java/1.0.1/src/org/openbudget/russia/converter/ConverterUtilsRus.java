@@ -1,14 +1,15 @@
 package org.openbudget.russia.converter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
-import org.openbudget.converter.face.ModelsCreator;
 import org.openbudget.exception.BrokenBudgetItemConverterException;
-import org.openbudget.exception.ConverterException;
-import org.openbudget.exception.StandardConverterException;
-import org.openbudget.model.Dimension;
-import org.openbudget.russia.model.Article;
+import org.openbudget.model.SourceTable;
 import org.openbudget.russia.model.BudgetItemRus;
+import org.openbudget.utils.Log;
 
 public class ConverterUtilsRus {
 	
@@ -22,18 +23,336 @@ public class ConverterUtilsRus {
 				+ item.getArticle().getCode() + item.getSpendingType().getCode();
 		
 	}
+	
+	public static int[] parseTable(SourceTable fullSource) {
 
-	public static <T> ArrayList<T> getModelsByType(
-			ArrayList<ModelsCreator> modelsCreators,
-			Class clazz) throws ConverterException {
-		
-		for(ModelsCreator model:modelsCreators){
-			if(clazz.isInstance(model)){
-				return model.getModels();
+		int[] result = new int[7];
+
+		String[][] source = fullSource.getCells();
+
+		// matrix of solution:
+		// 1=amount of unique values in col
+		// 2=string (0 if not, 1 if yes)
+		// 3=number (0 if not, 1 if yes)
+		// 4=Average length (in string equivalent)
+		// 5=string min
+		// 6=string max
+		// 7=amount of words in string
+
+		double[][] solution = new double[fullSource.cols()][7];
+
+		// values of each col in array
+		ArrayList<String[]> rows = new ArrayList<String[]>();
+
+		for (int i = 0; i < fullSource.cols(); i++) {
+			String[] nn = new String[fullSource.rows()];
+
+			// count empty cells for each col
+			int empty = 0;
+			int fullLength = 0;
+			int stringMax = 0;
+			int stringMin = 0;
+			int wordsCounter = 0;
+
+			for (int j = 0; j < fullSource.rows(); j++) {
+				// to save each value of col in cell
+				nn[j] = source[j][i] != null ? source[j][i].trim()
+						.toLowerCase() : "";
+
+				// find empty values and full length
+				if (source[j][i] == null || source[j][i].isEmpty()) {
+					empty++;
+				} else {
+					fullLength += source[j][i].length();
+
+					// find max and min for string
+					if (source[j][i].length() > stringMax) {
+						stringMax = source[j][i].length();
+					}
+					if (stringMin == 0) {
+						stringMin = source[j][i].length();
+					}
+					if (source[j][i].length() < stringMin) {
+						stringMin = source[j][i].length();
+					}
+
+					// count amount of words
+
+					wordsCounter += source[j][i].split(" ").length;
+				}
+			}
+
+			if ((fullSource.rows() - empty) != 0) {
+				// count average length of each value
+				solution[i][3] = fullLength / (fullSource.rows() - empty);
+				// count average amount of words
+				solution[i][6] = wordsCounter / (fullSource.rows() - empty);
+			}
+
+			solution[i][5] = stringMin;
+			solution[i][4] = stringMax;
+
+			rows.add(nn);
+		}
+
+		// create lists of unique values per col
+		ArrayList<Set> sets = new ArrayList<Set>();
+
+		for (int i = 0; i < fullSource.cols(); i++) {
+
+			Set<String> uniqKeys = new TreeSet<String>();
+			uniqKeys.addAll(Arrays.asList(rows.get(i)));
+
+			solution[i][0] = uniqKeys.size();
+
+			sets.add(uniqKeys);
+		}
+
+		// count average string/number values (weight)
+		int[][] strings = new int[fullSource.rows()][fullSource.cols()];
+		int[][] numbers = new int[fullSource.rows()][fullSource.cols()];
+
+		for (int i = 0; i < fullSource.rows(); i++) {
+
+			for (int j = 0; j < fullSource.cols(); j++) {
+				String v = source[i][j];
+				try {
+					if (source[i][j] != null && !source[i][j].isEmpty()) {
+						Double.valueOf(source[i][j]);
+						numbers[i][j] = 1;
+					}
+				} catch (NumberFormatException e) {
+					strings[i][j] = 1;
+				}
+			}
+		}
+
+		double strSum, numSum;
+
+		for (int i = 0; i < fullSource.cols(); i++) {
+			strSum = 0;
+			numSum = 0;
+
+			for (int j = 0; j < fullSource.rows(); j++) {
+				strSum += strings[j][i];
+				numSum += numbers[j][i];
+			}
+			strSum = (double) strSum / fullSource.rows();
+			numSum = (double) numSum / fullSource.rows();
+			solution[i][1] = strSum;
+			solution[i][2] = numSum;
+		}
+
+		// find classifications / make confident
+		// will be changed
+		List<double[]> newList = new ArrayList<double[]>();
+		// will not be changed, equals original
+		List<double[]> original = new ArrayList<double[]>();
+
+		for (double[] solut : solution) {
+			newList.add(solut);
+			original.add(solut);
+		}
+
+		List<double[]> newListToRemove = new ArrayList<double[]>();
+		// delete nulls
+
+		for (double[] ll : newList) {
+			if (ll[1] == ll[2]) {
+				newListToRemove.add(ll);
+				Log.postWarn("Column " + original.indexOf(ll)
+						+ " is not valuable and has been removed");
+			}
+		}
+
+		newList.removeAll(newListToRemove);
+
+		// find Amount: concept to find amount if high probability to be a
+		// number (value of 5 element of matrix is more then 0,9
+		// Map<Double,double[]> numbersListSorted = new
+		// TreeMap<Double,double[]>();
+
+		double[] amount = new double[newList.size()];
+
+		for (double[] ll : newList) {
+			if (ll[2] > 0.9) {
+				if (result[5] == 0) {
+					result[5] = original.indexOf(ll);
+					amount = ll;
+				} else if (ll[0] > amount[0]) {
+					amount = ll;
+				}
+			}
+		}
+
+		result[5] = original.indexOf(amount);
+
+		newList.remove(amount);
+
+		// find valuable string name: concept is 1) to find string value with
+		// high probability (>0,9), 2) the biggest value of amount of words, 3)
+		// the longest average length, 4) big divesity of unique values
+
+		List<double[]> findOne1st = new ArrayList<double[]>(), findOne2nd = new ArrayList<double[]>();
+
+		// check 1st param
+		for (double[] col : newList) {
+			if (col[1] > 0.9) {
+				findOne1st.add(col);
+			}
+		}
+
+		// check second param if found more then one
+		if (findOne1st.size() != 1) {
+			for (double[] col : findOne1st) {
+				if (col[6] > 2) {
+					findOne2nd.add(col);
+				}
+			}
+		} else {
+			result[0] = original.indexOf(findOne1st.get(0));
+			newList.remove(findOne1st.get(0));
+		}
+
+		// check average length
+
+		if (findOne2nd.size() != 1) {
+			double[] last = null;
+			int aveLeng = 0;
+			for (double[] col : findOne2nd) {
+				if (col[3] > aveLeng) {
+					last = col;
+				}
+			}
+
+			result[0] = original.indexOf(last);
+			newList.remove(last);
+		} else {
+			result[0] = original.indexOf(findOne2nd.get(0));
+			newList.remove(findOne2nd.get(0));
+		}
+
+		// check diversity - additional checking could be implemented separately
+		// for difficult cases. Mostly checking first three params is available.
+		// if(findOne.size()>1){
+		// for(double[] col : findOne){
+		// if(col[6] > 2){
+		// findOne.add(col);
+		// }
+		// }
+		// }
+
+		// we need to choose 4 params
+		// - GRBS (length is 3 (if is string) or 5 (if is number)), could be
+		// string or number
+		// - Article (7 if string without spaces or 9 if string with spaces 9 if
+		// number), could be string or number
+		// - Spending Type (length could be 3 or 5), string, number or unknown
+		// - Razdel (length could be 3,4,6), could be string or number
+
+		List<double[]> findAvailable = new ArrayList<double[]>();
+
+		for (double[] av : newList) {
+			if (av[3] >= 3 || av[3] <= 9) {
+				findAvailable.add(av);
+			}
+		}
+
+		// search article (at least 7 sumbols), amount of unique articles could
+		// not be more then amount of names
+		List<double[]> findArticles = new ArrayList<double[]>();
+		for (double[] av : findAvailable) {
+			if (av[3] >= 7 && av[0] < original.get(result[0])[0]) {
+				findArticles.add(av);
+			}
+		}
+
+		if (findArticles.size() == 1) {
+			result[3] = original.indexOf(findArticles.get(0));
+			newList.remove(findArticles.get(0));
+		} else if (findArticles.size() == 0) {
+			Log.postWarn("Can't find article column in source table.");
+		} else {
+			// need to analyze content of cells
+			Log.postWarn("Can't identify article column because more then one candifates have been found.");
+		}
+
+		// find grbs and spending type: the difference that amount of grbs <
+		// amount of types usually
+		List<double[]> findGRBS = new ArrayList<double[]>();
+		for (double[] av : newList) {
+			if (av[3] == 3 || av[3] == 5) {
+				findGRBS.add(av);
+			}
+		}
+
+		if (findGRBS.size() == 2) {
+			if (findGRBS.get(0)[3] < findGRBS.get(1)[3]) {
+				result[4] = original.indexOf(findGRBS.get(0));
+				result[1] = original.indexOf(findGRBS.get(1));
+			} else {
+				result[4] = original.indexOf(findGRBS.get(1));
+				result[1] = original.indexOf(findGRBS.get(0));
+			}
+
+			newList.remove(findGRBS.get(0));
+			newList.remove(findGRBS.get(1));
+		} else if (findGRBS.size() == 1) {
+			Log.postWarn("Can't identify grbs or spending type column because only one candifate has been found.");
+		} else {
+			Log.postWarn("Can't identify grbs or spending type column because more than two candifate or none have been found.");
+		}
+
+		// find razdel
+		List<double[]> findRaz = new ArrayList<double[]>();
+		for (double[] rz : newList) {
+			if (rz[3] == 3 || rz[3] == 4 || rz[3] == 6) {
+				findRaz.add(rz);
+			}
+		}
+
+		if (findRaz.size() == 1) {
+			result[2] = original.indexOf(findRaz.get(0));
+			newList.remove(findRaz.get(0));
+		} else {
+			Log.postWarn("Can't identify razdel because more candifates or none have been found.");
+		}
+
+		// find first row with amount
+		Integer firstRowIndex = null;
+		for (int i = 0; i < fullSource.rows(); i++) {
+			try {
+				if (fullSource.getCells()[i][result[5]] != null
+						&& !fullSource.getCells()[i][result[5]].isEmpty()) {
+					Double.parseDouble(fullSource.getCells()[i][result[5]]);
+					firstRowIndex = i;
+					break;
+				}
+			} catch (NumberFormatException e) {
 			}
 		}
 		
-		throw new StandardConverterException("Unknown Model Type");
+		if(firstRowIndex==null){
+			Log.postWarn("Can't identify first row with values.");
+		} else {
+			result[6]=firstRowIndex;
+		}
+		
+		String resultStr = "\n====START OF ANALYZING RESULT========\n" +
+				"Please check that results of extracting data will be as you expected.\n" +
+				"We found:    | Name \t| GRBS  \t| Razdel \t| Article  \t| Spending Type  \t| Amount |\n" +
+				"Your header: | "+fullSource.getCells()[firstRowIndex-1][result[0]]+ "|"
+				+fullSource.getCells()[firstRowIndex-1][result[1]]+ "|"+fullSource.getCells()[firstRowIndex-1][result[2]]+ "|"
+				+fullSource.getCells()[firstRowIndex-1][result[3]]+ "|"+fullSource.getCells()[firstRowIndex-1][result[4]]+ "|"
+				+fullSource.getCells()[firstRowIndex-1][result[5]]+ "|\n"+
+				"First row:   | "+fullSource.getCells()[firstRowIndex][result[0]]+ "|"
+				+fullSource.getCells()[firstRowIndex][result[1]]+ "|"+fullSource.getCells()[firstRowIndex][result[2]]+ "|"
+				+fullSource.getCells()[firstRowIndex][result[3]]+ "|"+fullSource.getCells()[firstRowIndex][result[4]]+ "|"
+				+fullSource.getCells()[firstRowIndex][result[5]]+ "|\n\n====END OF ANALYZING RESULT========\n";
+
+		Log.postWarn(resultStr);
+		return result;
 	}
+
 
 }

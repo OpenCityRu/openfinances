@@ -46,5 +46,27 @@ public class Classification extends Dimension{
 		return "[name=" + name + ", code=" + code
 				+ ", sourceRowNumber=" + sourceRowNumber + "]";
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Classification other = (Classification) obj;
+		if (code == null) {
+			if (other.getCode() != null)
+				return false;
+		} else if (!code.equals(other.getCode()))
+			return false;
+		if (name == null) {
+			if (other.getName() != null)
+				return false;
+		} else if (!name.equals(other.getName()))
+			return false;
+		return true;
+	}
 
 }
