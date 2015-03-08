@@ -35,7 +35,7 @@ public class InputSettings {
 		//check and save version
 		version = ConverterUtils.getValueByKey(params, "version");
 		if(version.isEmpty() || !version.equals(OBFConverter.getGlobalSettings().getCurrentVersion())){
-			throw new InputSettingsException(true,"Unknown version of format");
+			throw new InputSettingsException(true,OBFConverter.text.EXCEPTION_INPUT_SETTINGS_UNKNOWN_VERSION);
 		}
 		
 		//check and save format
@@ -43,17 +43,17 @@ public class InputSettings {
 		if(!format.isEmpty()){
 			
 			if(!ConverterUtils.checkAvailbaleFormatType(format)){
-				throw new InputSettingsException(true, "Unknown output format");
+				throw new InputSettingsException(true, OBFConverter.text.EXCEPTION_INPUT_SETTINGS_UNKNOWN_OUTPUT_FORMAT);
 			}
 			
 		} else {
-			throw new InputSettingsException(true,"Unknown output format");
+			throw new InputSettingsException(true,OBFConverter.text.EXCEPTION_INPUT_SETTINGS_UNKNOWN_OUTPUT_FORMAT);
 		} 
 		
 		//save source path
 		sourceFilePath = ConverterUtils.getValueByKey(params, "file");
 		if(sourceFilePath==null || sourceFilePath.isEmpty()){
-			throw new InputSettingsException(true, "Unknown source file path");
+			throw new InputSettingsException(true, OBFConverter.text.EXCEPTION_INPUT_SETTINGS_UNKNOWN_SOURCE_FILE);
 		}
 		
 		//save output name

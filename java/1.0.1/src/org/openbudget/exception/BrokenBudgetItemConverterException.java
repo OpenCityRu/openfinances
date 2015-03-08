@@ -1,12 +1,13 @@
 package org.openbudget.exception;
 
+import org.openbudget.converter.OBFConverter;
 import org.openbudget.model.BudgetItem;
 
 public class BrokenBudgetItemConverterException extends ConverterException{
 	
 	public BrokenBudgetItemConverterException(BudgetItem item){
 		
-		super("This is not budget item: "+ item.toString());
+		super(OBFConverter.text.EXCEPTION_INCORRECT_BUDGETITEM + item.toString());
 		
 	}
 

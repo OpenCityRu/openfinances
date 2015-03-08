@@ -12,16 +12,14 @@ import org.openbudget.converter.face.ModelsCreator;
 import org.openbudget.converter.face.Saver;
 import org.openbudget.exception.CantReadFileConverterException;
 import org.openbudget.exception.ConverterException;
-import org.openbudget.exception.InputSettingsException;
 import org.openbudget.exception.StandardConverterException;
 import org.openbudget.model.BudgetItem;
 import org.openbudget.model.GlobalSettings;
 import org.openbudget.model.InputSettings;
 import org.openbudget.model.MetaData;
 import org.openbudget.model.SourceTable;
-import org.openbudget.russia.converter.impl.SpendingTypeCreator;
-import org.openbudget.russia.model.SpendingType;
 import org.openbudget.utils.ConverterUtils;
+import org.openbudget.utils.Log;
 
 /**
  * Base class Converter doesn't have realization. All specific converters must have own realization.
@@ -40,6 +38,8 @@ import org.openbudget.utils.ConverterUtils;
 abstract public class OBFConverter<T extends BudgetItem, M extends MetaData> {
 	
 	protected static GlobalSettings globalSettings;
+	public static Localization text;
+	public static Log log;
 
 	//interfaces
 	protected BudgetFileReader fileReader;
@@ -56,11 +56,12 @@ abstract public class OBFConverter<T extends BudgetItem, M extends MetaData> {
 	protected ArrayList<T> budgetItems;
 	protected M metadata;
 	
-	public OBFConverter(GlobalSettings globalSettings) throws ConverterException{
+	public OBFConverter(GlobalSettings globalSettings, Localization texts, Log logger) throws ConverterException{
 		
-		//static
+		//static 
 		OBFConverter.globalSettings = globalSettings;
-		
+		OBFConverter.text = texts;
+		OBFConverter.log = logger;
 	}
 	
 	public void initiate(InputSettings settings,
@@ -96,7 +97,7 @@ abstract public class OBFConverter<T extends BudgetItem, M extends MetaData> {
 	
 	public static GlobalSettings getGlobalSettings() throws StandardConverterException{
 		if(globalSettings == null){
-			throw new StandardConverterException("Global settings are null. You should create new Instance of OBFConverter first then create InputSettings and then call initiate() method.");
+			throw new StandardConverterException(text.GLOBAL_SETTINGS_NULL);
 		}
 		return globalSettings;
 	}
@@ -200,6 +201,8 @@ abstract public class OBFConverter<T extends BudgetItem, M extends MetaData> {
 		//... and now standard actions (correct for all OBF converters that match requirements)
 		
 		saver.save(budgetItems, metadata, settings.getOutputFileName());
+		
+		OBFConverter.log.reset();
 		
 	}
 

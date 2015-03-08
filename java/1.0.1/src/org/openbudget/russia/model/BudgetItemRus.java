@@ -3,9 +3,11 @@ package org.openbudget.russia.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openbudget.converter.OBFConverter;
 import org.openbudget.model.Admin;
 import org.openbudget.model.BudgetItem;
 import org.openbudget.model.Classification;
+import org.openbudget.russia.converter.OBFConverterRus;
 
 public class BudgetItemRus extends BudgetItem {
 	
@@ -127,9 +129,9 @@ public class BudgetItemRus extends BudgetItem {
 
 	@Override
 	public String toString() {
-		return "BudgetItemRus [row="+(sourceRowNumber+1)+": GRBS=" + grbsCode
-				+ ", Razdel=" + razdelCode + ", Article=" + articleCode
-				+ ", vidRashodov=" + spendingType + ", sum=" + super.getAmount() + "]";
+		return "BudgetItemRus ["+OBFConverter.text.MODEL_SOURCE_ROW_NUMBER+"="+(sourceRowNumber+1)+": "+OBFConverterRus.text.RU_EN_GRBS+"=" + grbsCode
+				+ ", "+OBFConverterRus.text.RU_EN_RAZDEL+"=" + razdelCode + ", "+OBFConverterRus.text.RU_EN_ARTICLE+"=" + articleCode
+				+ ", "+OBFConverterRus.text.RU_EN_SPENDINGTYPE+"=" + spendingType + ", "+OBFConverterRus.text.RU_EN_AMOUNT+"=" + super.getAmount() + "]";
 	}
 
 }

@@ -1,5 +1,7 @@
 package org.openbudget.model;
 
+import org.openbudget.converter.OBFConverter;
+
 /**
  * 
  * @author inxaoc
@@ -43,8 +45,8 @@ public class Classification extends Dimension{
 	
 	@Override
 	public String toString() {
-		return "[name=" + name + ", code=" + code
-				+ ", sourceRowNumber=" + sourceRowNumber + "]";
+		return "["+OBFConverter.text.MODEL_NAME+"=" + name + ", "+OBFConverter.text.MODEL_CODE+"=" + code
+				+ ", "+OBFConverter.text.MODEL_SOURCE_ROW_NUMBER+"=" + sourceRowNumber + "]";
 	}
 	
 	@Override

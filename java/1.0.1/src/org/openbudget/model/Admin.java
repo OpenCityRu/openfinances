@@ -1,5 +1,7 @@
 package org.openbudget.model;
 
+import org.openbudget.converter.OBFConverter;
+
 public class Admin extends Dimension{
 	
 	/**
@@ -38,8 +40,8 @@ public class Admin extends Dimension{
 	
 	@Override
 	public String toString() {
-		return "[name=" + name + ", code=" + code
-				+ ", sourceRowNumber=" + sourceRowNumber + "]";
+		return "["+OBFConverter.text.MODEL_NAME+"=" + name + ", "+OBFConverter.text.MODEL_CODE+"=" + code
+				+ ", "+OBFConverter.text.MODEL_SOURCE_ROW_NUMBER+"=" + sourceRowNumber + "]";
 	}
 
 }

@@ -3,6 +3,8 @@ package org.openbudget.model;
 import java.util.Date;
 import java.util.List;
 
+import org.openbudget.converter.OBFConverter;
+
 /**
  * This is absctract class and could not be used directly. Use only specific subclasses.
  * Each subclass must define own Admins and Classifications.
@@ -188,7 +190,7 @@ abstract public class BudgetItem {
 		return "BudgetItem [id=" + id + ", period=" + period + ", amount="
 				+ amount + ", region=" + region + ", date=" + date + ", type="
 				+ type + ", level=" + level + ", stage=" + stage
-				+ ", sourceRowNumber=" + sourceRowNumber + "]";
+				+ ", "+OBFConverter.text.MODEL_SOURCE_ROW_NUMBER+"=" + sourceRowNumber + "]";
 	}
 	
 

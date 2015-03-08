@@ -2,9 +2,11 @@ package org.openbudget.russia.converter.impl;
 
 import java.util.ArrayList;
 
+import org.openbudget.converter.OBFConverter;
 import org.openbudget.converter.face.ModelsCreator;
 import org.openbudget.exception.ConverterException;
 import org.openbudget.model.SourceTable;
+import org.openbudget.russia.converter.OBFConverterRus;
 import org.openbudget.russia.model.EconomicRazdel;
 import org.openbudget.utils.ConverterUtils;
 import org.openbudget.utils.Log;
@@ -30,7 +32,7 @@ public class EconomicRazdelCreator implements ModelsCreator<EconomicRazdel> {
 				razdel.setCode(table.getCells()[i][2]);
 				razdel.setSourceRowNumber(i);
 				if (razdel.getCode().length() != 4) {
-					Log.postWarn("Razdel is less then 4 symbols");
+					OBFConverter.log.postWarn(OBFConverterRus.text.RU_EN_CONVERTING_RAZDEL_SYMBOLS);
 				} else {
 					razdel.setRazdelCode(razdel.getCode().substring(0, 2));
 					razdel.setPodRazdelCode(razdel.getCode().substring(2, 4));

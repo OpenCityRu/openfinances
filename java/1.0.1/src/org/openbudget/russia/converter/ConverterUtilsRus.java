@@ -6,24 +6,27 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.openbudget.converter.OBFConverter;
 import org.openbudget.exception.BrokenBudgetItemConverterException;
 import org.openbudget.model.SourceTable;
 import org.openbudget.russia.model.BudgetItemRus;
 import org.openbudget.utils.Log;
 
 public class ConverterUtilsRus {
-	
-	public static String generateKBK(BudgetItemRus item) throws BrokenBudgetItemConverterException {
-		
+
+	public static String generateKBK(BudgetItemRus item)
+			throws BrokenBudgetItemConverterException {
+
 		if (item.getGrbs() == null || item.getArticle() == null
 				|| item.getRazdel() == null) {
 			throw new BrokenBudgetItemConverterException(item);
 		}
 		return item.getGrbs().getCode() + item.getRazdel().getCode()
-				+ item.getArticle().getCode() + item.getSpendingType().getCode();
-		
+				+ item.getArticle().getCode()
+				+ item.getSpendingType().getCode();
+
 	}
-	
+
 	public static int[] parseTable(SourceTable fullSource) {
 
 		int[] result = new int[7];
@@ -105,6 +108,9 @@ public class ConverterUtilsRus {
 
 			solution[i][0] = uniqKeys.size();
 
+			OBFConverter.log.postSuccess(
+					OBFConverterRus.text.RU_EN_PARSING_FOUND_UNIQUE_VALUES,
+					(i + 1), uniqKeys.size());
 			sets.add(uniqKeys);
 		}
 
@@ -118,7 +124,7 @@ public class ConverterUtilsRus {
 				String v = source[i][j];
 				try {
 					if (source[i][j] != null && !source[i][j].isEmpty()) {
-						Double.valueOf(source[i][j]);
+						checkDouble(source[i][j]);
 						numbers[i][j] = 1;
 					}
 				} catch (NumberFormatException e) {
@@ -132,21 +138,43 @@ public class ConverterUtilsRus {
 		for (int i = 0; i < fullSource.cols(); i++) {
 			strSum = 0;
 			numSum = 0;
+			int empty = 0;
 
 			for (int j = 0; j < fullSource.rows(); j++) {
-				strSum += strings[j][i];
-				numSum += numbers[j][i];
+				if (strings[j][i] == 0 && numbers[j][i] == 0) {
+					empty++;
+				} else {
+					strSum += strings[j][i];
+					numSum += numbers[j][i];
+				}
 			}
-			strSum = (double) strSum / fullSource.rows();
-			numSum = (double) numSum / fullSource.rows();
+			strSum = (double) strSum / (fullSource.rows()-empty);
+			numSum = (double) numSum / (fullSource.rows()-empty);
 			solution[i][1] = strSum;
 			solution[i][2] = numSum;
 		}
 
+		int i=0;
+		for(double[] d : solution){
+			if(d[1]>9){
+			OBFConverter.log.postSuccess(
+					OBFConverterRus.text.RU_EN_PARSING_FOUND_STRINGS,i+1,d[1]);
+			}
+			if(d[2]>9){
+				OBFConverter.log.postSuccess(
+						OBFConverterRus.text.RU_EN_PARSING_FOUND_NUMBERS,i+1,d[2]);
+			}
+			i++;		
+		}
+		
+		OBFConverter.log.postSuccess(
+				OBFConverterRus.text.RU_EN_PARSING_READY_FIND);
+		
 		// find classifications / make confident
-		// will be changed
+		// this list will be changed
 		List<double[]> newList = new ArrayList<double[]>();
-		// will not be changed, equals original
+		
+		// this list will not be changed, equals original
 		List<double[]> original = new ArrayList<double[]>();
 
 		for (double[] solut : solution) {
@@ -157,11 +185,15 @@ public class ConverterUtilsRus {
 		List<double[]> newListToRemove = new ArrayList<double[]>();
 		// delete nulls
 
+		OBFConverter.log.postSuccess(
+				OBFConverterRus.text.RU_EN_PARSING_DELETE_NULLS);
+		
 		for (double[] ll : newList) {
 			if (ll[1] == ll[2]) {
 				newListToRemove.add(ll);
-				Log.postWarn("Column " + original.indexOf(ll)
-						+ " is not valuable and has been removed");
+				OBFConverter.log.postWarn(
+						OBFConverterRus.text.RU_EN_REMOVED_EXCESS_COLUMN,
+						original.indexOf(ll)+1);
 			}
 		}
 
@@ -169,6 +201,7 @@ public class ConverterUtilsRus {
 
 		// find Amount: concept to find amount if high probability to be a
 		// number (value of 5 element of matrix is more then 0,9
+		
 		// Map<Double,double[]> numbersListSorted = new
 		// TreeMap<Double,double[]>();
 
@@ -184,10 +217,14 @@ public class ConverterUtilsRus {
 				}
 			}
 		}
-
-		result[5] = original.indexOf(amount);
-
-		newList.remove(amount);
+		
+		if(amount != null && original.indexOf(amount) != -1 ){
+			result[5] = original.indexOf(amount);
+			newList.remove(amount);
+			OBFConverter.log.postSuccess(OBFConverterRus.text.RU_EN_PARSING_AMOUNT_FOUND, original.indexOf(amount)+1);
+		} else {
+			OBFConverter.log.postWarn(OBFConverterRus.text.RU_EN_PARSING_AMOUNT_NOTFOUND);
+		}
 
 		// find valuable string name: concept is 1) to find string value with
 		// high probability (>0,9), 2) the biggest value of amount of words, 3)
@@ -210,26 +247,47 @@ public class ConverterUtilsRus {
 				}
 			}
 		} else {
-			result[0] = original.indexOf(findOne1st.get(0));
-			newList.remove(findOne1st.get(0));
+			
+			
+			if(findOne1st.get(0) != null && original.indexOf(findOne1st.get(0)) != -1 ){
+				result[0] = original.indexOf(findOne1st.get(0));
+				newList.remove(findOne1st.get(0));
+				OBFConverter.log.postSuccess(OBFConverterRus.text.RU_EN_PARSING_NAME_FOUND, original.indexOf(findOne1st.get(0))+1);
+			} else {
+				OBFConverter.log.postWarn(OBFConverterRus.text.RU_EN_PARSING_NAME_NOTFOUND);
+			}
 		}
 
 		// check average length
 
 		if (findOne2nd.size() != 1) {
 			double[] last = null;
-			int aveLeng = 0;
+			double aveLeng = 0;
 			for (double[] col : findOne2nd) {
 				if (col[3] > aveLeng) {
 					last = col;
+					aveLeng=col[3];
 				}
 			}
-
-			result[0] = original.indexOf(last);
-			newList.remove(last);
+			
+			if(last != null && original.indexOf(last) != -1 ){
+				result[0] = original.indexOf(last);
+				newList.remove(last);
+				OBFConverter.log.postSuccess(OBFConverterRus.text.RU_EN_PARSING_NAME_FOUND, original.indexOf(last)+1);
+			} else {
+				OBFConverter.log.postWarn(OBFConverterRus.text.RU_EN_PARSING_NAME_NOTFOUND);
+			}
+			
+			
 		} else {
-			result[0] = original.indexOf(findOne2nd.get(0));
-			newList.remove(findOne2nd.get(0));
+			
+			if(findOne2nd.get(0) != null && original.indexOf(findOne2nd.get(0)) != -1 ){
+				result[0] = original.indexOf(findOne2nd.get(0));
+				newList.remove(findOne2nd.get(0));
+				OBFConverter.log.postSuccess(OBFConverterRus.text.RU_EN_PARSING_NAME_FOUND, original.indexOf(findOne2nd.get(0))+1);
+			} else {
+				OBFConverter.log.postWarn(OBFConverterRus.text.RU_EN_PARSING_NAME_NOTFOUND);
+			}
 		}
 
 		// check diversity - additional checking could be implemented separately
@@ -250,15 +308,17 @@ public class ConverterUtilsRus {
 		// - Spending Type (length could be 3 or 5), string, number or unknown
 		// - Razdel (length could be 3,4,6), could be string or number
 
+		OBFConverter.log.postSuccess(OBFConverterRus.text.RU_EN_PARSING_CLASSIFICATIONS);
+		
 		List<double[]> findAvailable = new ArrayList<double[]>();
 
 		for (double[] av : newList) {
-			if (av[3] >= 3 || av[3] <= 9) {
+			if (av[3] >= 3 && av[3] <= 9) {
 				findAvailable.add(av);
 			}
 		}
 
-		// search article (at least 7 sumbols), amount of unique articles could
+		// search article (at least 7 symbols), amount of unique articles could
 		// not be more then amount of names
 		List<double[]> findArticles = new ArrayList<double[]>();
 		for (double[] av : findAvailable) {
@@ -268,13 +328,22 @@ public class ConverterUtilsRus {
 		}
 
 		if (findArticles.size() == 1) {
-			result[3] = original.indexOf(findArticles.get(0));
-			newList.remove(findArticles.get(0));
+			
+			if(findArticles.get(0) != null && original.indexOf(findArticles.get(0)) != -1 ){
+				result[3] = original.indexOf(findArticles.get(0));
+				newList.remove(findArticles.get(0));
+				OBFConverter.log.postSuccess(OBFConverterRus.text.RU_EN_PARSING_ARTICLE_FOUND, original.indexOf(findArticles.get(0))+1);
+			} else {
+				OBFConverter.log.postWarn(OBFConverterRus.text.RU_EN_PARSING_ARTICLE_NOT_FOUND);
+			}
+			
 		} else if (findArticles.size() == 0) {
-			Log.postWarn("Can't find article column in source table.");
+			OBFConverter.log
+					.postWarn(OBFConverterRus.text.RU_EN_PARSING_ARTICLE_NOT_FOUND);
 		} else {
 			// need to analyze content of cells
-			Log.postWarn("Can't identify article column because more then one candifates have been found.");
+			OBFConverter.log
+					.postWarn(OBFConverterRus.text.RU_EN_PARSING_ARTICLE_MORE);
 		}
 
 		// find grbs and spending type: the difference that amount of grbs <
@@ -288,19 +357,49 @@ public class ConverterUtilsRus {
 
 		if (findGRBS.size() == 2) {
 			if (findGRBS.get(0)[3] < findGRBS.get(1)[3]) {
-				result[4] = original.indexOf(findGRBS.get(0));
-				result[1] = original.indexOf(findGRBS.get(1));
+				
+				if(findGRBS.get(0) != null && original.indexOf(findGRBS.get(0)) != -1 ){
+					result[4] = original.indexOf(findGRBS.get(0));
+					newList.remove(findGRBS.get(0));
+					OBFConverter.log.postSuccess(OBFConverterRus.text.RU_EN_PARSING_SPENDING_FOUND, original.indexOf(findGRBS.get(0))+1);
+				} else {
+					OBFConverter.log.postWarn(OBFConverterRus.text.RU_EN_PARSING_SPENDING_NOT_FOUND);
+				}
+				
+				if(findGRBS.get(1) != null && original.indexOf(findGRBS.get(1)) != -1 ){
+					result[1] = original.indexOf(findGRBS.get(1));
+					newList.remove(findGRBS.get(1));
+					OBFConverter.log.postSuccess(OBFConverterRus.text.RU_EN_PARSING_GRBS_FOUND, original.indexOf(findGRBS.get(1))+1);
+				} else {
+					OBFConverter.log.postWarn(OBFConverterRus.text.RU_EN_PARSING_GRBS_NOT_FOUND);
+				}
+				
 			} else {
-				result[4] = original.indexOf(findGRBS.get(1));
-				result[1] = original.indexOf(findGRBS.get(0));
+				
+				if(findGRBS.get(1) != null && original.indexOf(findGRBS.get(1)) != -1 ){
+					result[4] = original.indexOf(findGRBS.get(1));
+					newList.remove(findGRBS.get(1));
+					OBFConverter.log.postSuccess(OBFConverterRus.text.RU_EN_PARSING_SPENDING_FOUND, original.indexOf(findGRBS.get(1))+1);
+				} else {
+					OBFConverter.log.postWarn(OBFConverterRus.text.RU_EN_PARSING_SPENDING_NOT_FOUND);
+				}
+				
+				if(findGRBS.get(1) != null && original.indexOf(findGRBS.get(0)) != -1 ){
+					result[1] = original.indexOf(findGRBS.get(0));
+					newList.remove(findGRBS.get(0));
+					OBFConverter.log.postSuccess(OBFConverterRus.text.RU_EN_PARSING_GRBS_FOUND, original.indexOf(findGRBS.get(0))+1);
+				} else {
+					OBFConverter.log.postWarn(OBFConverterRus.text.RU_EN_PARSING_GRBS_NOT_FOUND);
+				}
+				
 			}
-
-			newList.remove(findGRBS.get(0));
-			newList.remove(findGRBS.get(1));
+			
 		} else if (findGRBS.size() == 1) {
-			Log.postWarn("Can't identify grbs or spending type column because only one candifate has been found.");
+			OBFConverter.log
+					.postWarn(OBFConverterRus.text.RU_EN_PARSING_GRBS_VID_NOTIDENTIFIED_ONE);
 		} else {
-			Log.postWarn("Can't identify grbs or spending type column because more than two candifate or none have been found.");
+			OBFConverter.log
+					.postWarn(OBFConverterRus.text.RU_EN_PARSING_GRBS_VID_NOTIDENTIFIED_MORE);
 		}
 
 		// find razdel
@@ -312,47 +411,97 @@ public class ConverterUtilsRus {
 		}
 
 		if (findRaz.size() == 1) {
-			result[2] = original.indexOf(findRaz.get(0));
-			newList.remove(findRaz.get(0));
+			
+			if(findRaz.get(0) != null && original.indexOf(findRaz.get(0)) != -1 ){
+				result[2] = original.indexOf(findRaz.get(0));
+				newList.remove(findRaz.get(0));
+				OBFConverter.log.postSuccess(OBFConverterRus.text.RU_EN_PARSING_RAZDEL_FOUND, original.indexOf(findRaz.get(0))+1);
+			} else {
+				OBFConverter.log.postWarn(OBFConverterRus.text.RU_EN_PARSING_RAZDEL_NOT_FOUND);
+			}
+			
 		} else {
-			Log.postWarn("Can't identify razdel because more candifates or none have been found.");
+			OBFConverter.log
+					.postWarn(OBFConverterRus.text.RU_EN_PARSING_RAZDELS_NOTIDENTIFIED_MORE);
 		}
 
 		// find first row with amount
 		Integer firstRowIndex = null;
-		for (int i = 0; i < fullSource.rows(); i++) {
+		for (i = 0; i < fullSource.rows(); i++) {
 			try {
 				if (fullSource.getCells()[i][result[5]] != null
 						&& !fullSource.getCells()[i][result[5]].isEmpty()) {
-					Double.parseDouble(fullSource.getCells()[i][result[5]]);
+					checkDouble(fullSource.getCells()[i][result[5]]);
 					firstRowIndex = i;
 					break;
 				}
 			} catch (NumberFormatException e) {
+				
 			}
 		}
-		
-		if(firstRowIndex==null){
-			Log.postWarn("Can't identify first row with values.");
-		} else {
-			result[6]=firstRowIndex;
-		}
-		
-		String resultStr = "\n====START OF ANALYZING RESULT========\n" +
-				"Please check that results of extracting data will be as you expected.\n" +
-				"We found:    | Name \t| GRBS  \t| Razdel \t| Article  \t| Spending Type  \t| Amount |\n" +
-				"Your header: | "+fullSource.getCells()[firstRowIndex-1][result[0]]+ "|"
-				+fullSource.getCells()[firstRowIndex-1][result[1]]+ "|"+fullSource.getCells()[firstRowIndex-1][result[2]]+ "|"
-				+fullSource.getCells()[firstRowIndex-1][result[3]]+ "|"+fullSource.getCells()[firstRowIndex-1][result[4]]+ "|"
-				+fullSource.getCells()[firstRowIndex-1][result[5]]+ "|\n"+
-				"First row:   | "+fullSource.getCells()[firstRowIndex][result[0]]+ "|"
-				+fullSource.getCells()[firstRowIndex][result[1]]+ "|"+fullSource.getCells()[firstRowIndex][result[2]]+ "|"
-				+fullSource.getCells()[firstRowIndex][result[3]]+ "|"+fullSource.getCells()[firstRowIndex][result[4]]+ "|"
-				+fullSource.getCells()[firstRowIndex][result[5]]+ "|\n\n====END OF ANALYZING RESULT========\n";
 
-		Log.postWarn(resultStr);
+		if (firstRowIndex == null) {
+			OBFConverter.log
+					.postWarn(OBFConverterRus.text.RU_EN_PARSING_FIRST_ROW_NOTFOUND);
+			return null;
+		} else {
+			result[6] = firstRowIndex;
+		}
+
+		String resultStr = "\n====START OF ANALYZING RESULT========\n"
+				+ "Please check that results of extracting data will be as you expected.\n"
+				+ "We found:    | Name \t| GRBS  \t| Razdel \t| Article  \t| Spending Type  \t| Amount |\n"
+				+ "Your header: | "
+				+ fullSource.getCells()[firstRowIndex - 1][result[0]]
+				+ "|"
+				+ fullSource.getCells()[firstRowIndex - 1][result[1]]
+				+ "|"
+				+ fullSource.getCells()[firstRowIndex - 1][result[2]]
+				+ "|"
+				+ fullSource.getCells()[firstRowIndex - 1][result[3]]
+				+ "|"
+				+ fullSource.getCells()[firstRowIndex - 1][result[4]]
+				+ "|"
+				+ fullSource.getCells()[firstRowIndex - 1][result[5]]
+				+ "|\n"
+				+ "First row:   | "
+				+ fullSource.getCells()[firstRowIndex][result[0]]
+				+ "|"
+				+ fullSource.getCells()[firstRowIndex][result[1]]
+				+ "|"
+				+ fullSource.getCells()[firstRowIndex][result[2]]
+				+ "|"
+				+ fullSource.getCells()[firstRowIndex][result[3]]
+				+ "|"
+				+ fullSource.getCells()[firstRowIndex][result[4]]
+				+ "|"
+				+ fullSource.getCells()[firstRowIndex][result[5]]
+				+ "|\n\n====END OF ANALYZING RESULT========\n";
+
+		OBFConverter.log.postSuccess(resultStr);
 		return result;
 	}
 
+	public static String checkDouble(String string) {
+
+		if (string == null || string.isEmpty()) {
+			throw new NumberFormatException();
+		}
+		try {
+			Double.valueOf(string);
+			return string;
+		} catch (NumberFormatException e) {
+
+			if (string.contains(".") || string.contains(",")) {
+
+				string = string.replaceAll(" ", "").replace(",", ".");
+				Double.valueOf(string);
+				return string;
+
+			} else {
+				throw new NumberFormatException();
+			}
+		}
+	}
 
 }

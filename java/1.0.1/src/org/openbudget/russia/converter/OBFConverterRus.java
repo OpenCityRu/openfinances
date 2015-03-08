@@ -2,6 +2,7 @@ package org.openbudget.russia.converter;
 
 import java.util.ArrayList;
 
+import org.openbudget.converter.Localization;
 import org.openbudget.converter.OBFConverter;
 import org.openbudget.converter.face.ModelsCreator;
 import org.openbudget.exception.BrokenBudgetItemConverterException;
@@ -13,6 +14,7 @@ import org.openbudget.russia.converter.impl.ArticleCreator;
 import org.openbudget.russia.converter.impl.EconomicRazdelCreator;
 import org.openbudget.russia.converter.impl.GRBSCreator;
 import org.openbudget.russia.converter.impl.GlobalSettingsRus;
+import org.openbudget.russia.converter.impl.Localization_ru;
 import org.openbudget.russia.converter.impl.SpendingTypeCreator;
 import org.openbudget.russia.model.Article;
 import org.openbudget.russia.model.BudgetItemRus;
@@ -33,10 +35,11 @@ public class OBFConverterRus extends OBFConverter<BudgetItemRus, MetaDataRus> {
 
 	protected Integer currentId = 1;
 	protected String docVersion = "1";
+	public static Localization_ru text;
 
 	public OBFConverterRus() throws ConverterException {
-
-		super(new GlobalSettingsRus());
+		
+		super(new GlobalSettingsRus(), Localization_ru.getInstance(), new Log());
 
 	}
 
@@ -99,8 +102,7 @@ public class OBFConverterRus extends OBFConverter<BudgetItemRus, MetaDataRus> {
 					budgetItems.add(item);
 
 				} catch (NumberFormatException e) {
-					Log.postWarn("Row " + (i+1)
-							+ " is identified as a not budget item and missed.");
+					log.postWarn(OBFConverterRus.text.RU_EN_READFILE_NOT_BUDGETITEM, (i+1));
 					continue;
 				}
 
@@ -119,20 +121,20 @@ public class OBFConverterRus extends OBFConverter<BudgetItemRus, MetaDataRus> {
 
 			item.setArticle(findArticle(modelsCreators, item.getArticleCode()));
 			if(item.getArticle()==null){
-				Log.postWarn("Article with code \""+item.getArticleCode()+"\" not found in collection of Articles.");
+				log.postWarn(text.RU_EN_CONVERTING_ARTICLE_MODEL_NOTFOUND, item.getArticleCode());
 			}
 			item.setGrbs(findGRBS(modelsCreators, item.getGrbsCode()));
 			if(item.getGrbs()==null){
-				Log.postWarn("GRBS with code \""+item.getGrbsCode()+"\" not found in collection of GRBS.");
+				log.postWarn(text.RU_EN_CONVERTING_GRBS_MODEL_NOTFOUND,item.getGrbsCode());
 			}
 			item.setRazdel(findRazdel(modelsCreators, item.getRazdelCode()));
 			if(item.getRazdel()==null){
-				Log.postWarn("Razdel with code \""+item.getRazdelCode()+"\" not found in collection of Razdels.");
+				log.postWarn(text.RU_EN_CONVERTING_RAZDEL_MODEL_NOTFOUND,item.getRazdelCode());
 			}
 			item.setSpendingType(findSpendingType(modelsCreators,
 					item.getSpendingCode()));
 			if(item.getSpendingCode()==null){
-				Log.postWarn("Spending Type with code \""+item.getSpendingCode()+"\" not found in collection of Spending types.");
+				log.postWarn(text.RU_EN_CONVERTING_SPENDING_MODEL_NOTFOUND,item.getSpendingCode());
 			}
 
 			try {
@@ -140,7 +142,7 @@ public class OBFConverterRus extends OBFConverter<BudgetItemRus, MetaDataRus> {
 				item.setKBK(ConverterUtilsRus.generateKBK(item));
 
 			} catch (BrokenBudgetItemConverterException e) {
-				Log.postWarn(e.getMessage());
+				log.postWarn(e.getMessage());
 				removeList.add(item);
 			}
 
@@ -257,8 +259,7 @@ public class OBFConverterRus extends OBFConverter<BudgetItemRus, MetaDataRus> {
 				if (type == null) {
 					type = r;
 				} else {
-					Log.postWarn("More then 1 spending type with the same number found (row "
-							+ (r.getSourceRowNumber() + 1) + ")");
+					log.postWarn(OBFConverterRus.text.RU_EN_CONVERTING_SPENDING_MODEL_DUPLICATED, (r.getSourceRowNumber() + 1) , type.getName(), r.getName());
 				}
 			}
 		}
@@ -278,8 +279,7 @@ public class OBFConverterRus extends OBFConverter<BudgetItemRus, MetaDataRus> {
 				if (razdel == null) {
 					razdel = r;
 				} else {
-					Log.postWarn("More then 1 razdel with the same number found (row "
-							+ (r.getSourceRowNumber() + 1) + ")");
+					log.postWarn(OBFConverterRus.text.RU_EN_CONVERTING_RAZDEL_MODEL_DUPLICATED,(r.getSourceRowNumber() + 1), razdel.getName(), r.getName());
 				}
 			}
 		}
@@ -298,8 +298,7 @@ public class OBFConverterRus extends OBFConverter<BudgetItemRus, MetaDataRus> {
 				if (grbs == null) {
 					grbs = g;
 				} else {
-					Log.postWarn("More then 1 GRBS with the same number found (row "
-							+ (g.getSourceRowNumber() + 1) + ")");
+					log.postWarn(OBFConverterRus.text.RU_EN_CONVERTING_GRBS_MODEL_DUPLICATED , (g.getSourceRowNumber() + 1), grbs.getName(),g.getName());
 				}
 			}
 		}
@@ -318,8 +317,7 @@ public class OBFConverterRus extends OBFConverter<BudgetItemRus, MetaDataRus> {
 				if (article == null) {
 					article = art;
 				} else {
-					Log.postWarn("More then 1 article with the same number found (row "
-							+ (art.getSourceRowNumber() + 1) + ")");
+					log.postWarn(OBFConverterRus.text.RU_EN_CONVERTING_ARTICLE_MODEL_DUPLICATED,(art.getSourceRowNumber() + 1),article.getName(),art.getName());
 				}
 			}
 		}

@@ -3,14 +3,9 @@ package org.openbudget.utils;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
 import org.openbudget.converter.OBFConverter;
 import org.openbudget.converter.face.ModelsCreator;
@@ -80,7 +75,7 @@ public class ConverterUtils {
 				return s[1];
 			}
 		}
-		Log.postWarn("Setting \"" + key + "\" is not found");
+		OBFConverter.log.postWarn(OBFConverter.text.SETTING_NOT_FOUND,key);
 		return "";
 		// throw new InputSettingsException(true,
 		// "Setting \""+key+"\" is not found");
@@ -91,7 +86,7 @@ public class ConverterUtils {
 		try {
 			return new SimpleDateFormat("yyyy-MM-dd").parse(date);
 		} catch (ParseException e) {
-			throw new InputSettingsException(true, "Unknown date");
+			throw new InputSettingsException(true, OBFConverter.text.UNKNOWN_DATE);
 		}
 	}
 
@@ -138,7 +133,7 @@ public class ConverterUtils {
 			}
 		}
 
-		throw new StandardConverterException("Unknown Model Type");
+		throw new StandardConverterException(OBFConverter.text.UNKNOWN_MODEL);
 	}
 
 	public static <T> ArrayList<T> createUniqueList(ArrayList<T> originalListObj) {

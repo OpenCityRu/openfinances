@@ -1,5 +1,7 @@
 package org.openbudget.exception;
 
+import org.openbudget.converter.OBFConverter;
+
 /**
  * Class for all exceptions connected with Input Settings.
  * Use Constructor(String fileName) if you have problem with input file.
@@ -11,7 +13,7 @@ package org.openbudget.exception;
 public class InputSettingsException extends ConverterException {
 
 	public InputSettingsException(String fileName){
-		super("Wrong format of source file: "+ fileName);
+		super(OBFConverter.text.EXCEPTION_INPUT_SETTINGS_WRONG_FORMAT+ fileName);
 	}
 
 	public InputSettingsException(Boolean justMessage, String message){
@@ -26,16 +28,16 @@ public class InputSettingsException extends ConverterException {
 		
 		String pars = "";
 		if(params==null || params.length==0){
-			return "No input params";
+			return OBFConverter.text.EXCEPTION_INPUT_SETTINGS_NO_PARAMS;
 		}
 		for(String[] p : params){
 			if(p.length==2){
 				pars += p[0] + ":" + p[1] + ";";
 			} else {
-				return "Incorrect params (must be pairs (key, value) ) in a set ("+pars+")";
+				return OBFConverter.text.EXCEPTION_INPUT_SETTINGS_PAIRS + " ("+pars+")";
 			}
 		}
 		
-		return "There are some problems with input params: "+ pars;
+		return OBFConverter.text.EXCEPTION_INPUT_SETTINGS_PROBLEMS+ pars;
 	}
 }

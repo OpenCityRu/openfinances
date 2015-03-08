@@ -1,5 +1,6 @@
 package org.openbudget.russia.model;
 
+import org.openbudget.converter.OBFConverter;
 import org.openbudget.model.Admin;
 
 /**
@@ -11,7 +12,7 @@ public class GRBS extends Admin {
 	
 	@Override
 	public String toString() {
-		return "Admin "+super.toString();
+		return OBFConverter.text.TERM_ADMIN+" "+super.toString();
 	}
 
 }
