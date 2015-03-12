@@ -85,7 +85,7 @@ abstract public class OBFConverter<T extends BudgetItem, M extends MetaData> {
 		item.setLevel(settings.getLevel());
 		item.setStage(settings.getStage());
 		item.setType(settings.getType());
-		item.setRegion(settings.getRegion());
+		
 	}
 	
 	public void addModelCreatorSample(ModelsCreator creator){
