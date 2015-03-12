@@ -17,14 +17,36 @@ import org.openbudget.converter.face.Runnable;
 public class SimpleRunner implements Runnable {
 	
 	public static void main(String[] args) throws ConverterException {
+		
+		String name="output";
+		String file="input.xls";
+		String year="2015";
+		String region="Дачное";
+				
+		int i=0;
+		for(String arg :args){
+			if(arg.equals("-name")){
+				name=args[i+1];
+			}
+			if(arg.equals("-file")){
+				file=args[i+1];
+			}
+			if(arg.equals("-year")){
+				year=args[i+1];
+			}
+//			if(arg.equals("-region")){
+//				region=args[i+1];
+//			}
+			i++;
+		}
 
 		String[][] settings = {
-				{"name","Vladmirsky_vedomst_2014_original"},
+				{"name",name},
 				{"format","csv"},
 				{"version","1.0"},
-				{"period","2014-01-01"},
-				{"region","Горелово"},
-				{"file","files/Vladmirsky_vedomst_2014_original.xls"},
+				{"period",year+"-01-01"},
+				{"region",region},
+				{"file",file},
 				{"stage","EN"},
 				{"level","M"},
 				{"type","E"},
