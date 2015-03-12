@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Main-Class: org.openbudget.russia.runner.SimpleRunner
+Class-Path: lib/obf-converter-base-1.0.1.jar lib/poi-3.12-beta1-20150228.jar lib/poi-ooxml-3.12-beta1-20150228.jar lib/poi-ooxml-schemas-3.12-beta1-20150228.jar lib/xmlbeans-2.6.0.jar lib/opencsv-2.3.jar
