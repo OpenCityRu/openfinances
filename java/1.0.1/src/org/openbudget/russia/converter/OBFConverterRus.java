@@ -36,10 +36,17 @@ public class OBFConverterRus extends OBFConverter<BudgetItemRus, MetaDataRus> {
 	protected Integer currentId = 1;
 	protected String docVersion = "1";
 	public static Localization_ru text;
+	
 
 	public OBFConverterRus() throws ConverterException {
 		
-		super(new GlobalSettingsRus(), Localization_ru.getInstance(), new Log());
+		super(new GlobalSettingsRus(), Localization_ru.getInstance("text_ru.properties"), new Log());
+
+	}
+	
+	public OBFConverterRus(String propertyFile, Log log) throws ConverterException {
+		
+		super(new GlobalSettingsRus(), Localization_ru.getInstance(propertyFile), log);
 
 	}
 
@@ -102,7 +109,7 @@ public class OBFConverterRus extends OBFConverter<BudgetItemRus, MetaDataRus> {
 					budgetItems.add(item);
 
 				} catch (NumberFormatException e) {
-					log.postWarn(OBFConverterRus.text.RU_EN_READFILE_NOT_BUDGETITEM, (i+1));
+					log.postError(OBFConverterRus.text.RU_EN_READFILE_NOT_BUDGETITEM, (i+1));
 					continue;
 				}
 
@@ -121,20 +128,20 @@ public class OBFConverterRus extends OBFConverter<BudgetItemRus, MetaDataRus> {
 
 			item.setArticle(findArticle(modelsCreators, item.getArticleCode()));
 			if(item.getArticle()==null){
-				log.postWarn(text.RU_EN_CONVERTING_ARTICLE_MODEL_NOTFOUND, item.getArticleCode());
+				log.postWarn(text.RU_EN_CONVERTING_ARTICLE_MODEL_NOTFOUND, item.getArticleCode(), item.getSourceRowNumber()+1);
 			}
 			item.setGrbs(findGRBS(modelsCreators, item.getGrbsCode()));
 			if(item.getGrbs()==null){
-				log.postWarn(text.RU_EN_CONVERTING_GRBS_MODEL_NOTFOUND,item.getGrbsCode());
+				log.postWarn(text.RU_EN_CONVERTING_GRBS_MODEL_NOTFOUND,item.getGrbsCode(), item.getSourceRowNumber()+1);
 			}
 			item.setRazdel(findRazdel(modelsCreators, item.getRazdelCode()));
 			if(item.getRazdel()==null){
-				log.postWarn(text.RU_EN_CONVERTING_RAZDEL_MODEL_NOTFOUND,item.getRazdelCode());
+				log.postWarn(text.RU_EN_CONVERTING_RAZDEL_MODEL_NOTFOUND,item.getRazdelCode(), item.getSourceRowNumber()+1);
 			}
 			item.setSpendingType(findSpendingType(modelsCreators,
 					item.getSpendingCode()));
 			if(item.getSpendingCode()==null){
-				log.postWarn(text.RU_EN_CONVERTING_SPENDING_MODEL_NOTFOUND,item.getSpendingCode());
+				log.postWarn(text.RU_EN_CONVERTING_SPENDING_MODEL_NOTFOUND,item.getSpendingCode(), item.getSourceRowNumber()+1);
 			}
 
 			try {
@@ -142,7 +149,7 @@ public class OBFConverterRus extends OBFConverter<BudgetItemRus, MetaDataRus> {
 				item.setKBK(ConverterUtilsRus.generateKBK(item));
 
 			} catch (BrokenBudgetItemConverterException e) {
-				log.postWarn(e.getMessage());
+				log.postError(e.getMessage());
 				removeList.add(item);
 			}
 
@@ -259,7 +266,7 @@ public class OBFConverterRus extends OBFConverter<BudgetItemRus, MetaDataRus> {
 				if (type == null) {
 					type = r;
 				} else {
-					log.postWarn(OBFConverterRus.text.RU_EN_CONVERTING_SPENDING_MODEL_DUPLICATED, (r.getSourceRowNumber() + 1) , type.getName(), r.getName());
+					log.postError(OBFConverterRus.text.RU_EN_CONVERTING_SPENDING_MODEL_DUPLICATED, (r.getSourceRowNumber() + 1) , type.getName(), r.getName());
 				}
 			}
 		}
@@ -279,7 +286,7 @@ public class OBFConverterRus extends OBFConverter<BudgetItemRus, MetaDataRus> {
 				if (razdel == null) {
 					razdel = r;
 				} else {
-					log.postWarn(OBFConverterRus.text.RU_EN_CONVERTING_RAZDEL_MODEL_DUPLICATED,(r.getSourceRowNumber() + 1), razdel.getName(), r.getName());
+					log.postError(OBFConverterRus.text.RU_EN_CONVERTING_RAZDEL_MODEL_DUPLICATED,(r.getSourceRowNumber() + 1), razdel.getName(), r.getName());
 				}
 			}
 		}
@@ -298,7 +305,7 @@ public class OBFConverterRus extends OBFConverter<BudgetItemRus, MetaDataRus> {
 				if (grbs == null) {
 					grbs = g;
 				} else {
-					log.postWarn(OBFConverterRus.text.RU_EN_CONVERTING_GRBS_MODEL_DUPLICATED , (g.getSourceRowNumber() + 1), grbs.getName(),g.getName());
+					log.postError(OBFConverterRus.text.RU_EN_CONVERTING_GRBS_MODEL_DUPLICATED , (g.getSourceRowNumber() + 1), grbs.getName(),g.getName());
 				}
 			}
 		}
@@ -317,7 +324,7 @@ public class OBFConverterRus extends OBFConverter<BudgetItemRus, MetaDataRus> {
 				if (article == null) {
 					article = art;
 				} else {
-					log.postWarn(OBFConverterRus.text.RU_EN_CONVERTING_ARTICLE_MODEL_DUPLICATED,(art.getSourceRowNumber() + 1),article.getName(),art.getName());
+					log.postError(OBFConverterRus.text.RU_EN_CONVERTING_ARTICLE_MODEL_DUPLICATED,(art.getSourceRowNumber() + 1),article.getName(),art.getName());
 				}
 			}
 		}

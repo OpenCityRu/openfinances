@@ -75,7 +75,7 @@ public class ConverterUtils {
 				return s[1];
 			}
 		}
-		OBFConverter.log.postWarn(OBFConverter.text.SETTING_NOT_FOUND,key);
+		OBFConverter.log.postError(OBFConverter.text.SETTING_NOT_FOUND,key);
 		return "";
 		// throw new InputSettingsException(true,
 		// "Setting \""+key+"\" is not found");

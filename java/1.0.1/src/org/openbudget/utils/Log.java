@@ -29,6 +29,14 @@ public class Log {
 		post(" !! WARN !!: ", message, 2, objects);
 	}
 	
+	public void postError(String message) {
+		post(" !! ERROR !!: ", message, 0);
+	}
+	
+	public void postError(String message, Object... objects) {
+		post(" !! ERROR !!: ", message, 0, objects);
+	}
+	
 	public void postSuccess(String message) {
 		post(" !! SUCCESS !!: ", message, 1);
 	}

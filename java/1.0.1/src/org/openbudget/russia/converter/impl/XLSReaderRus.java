@@ -1,36 +1,59 @@
 package org.openbudget.russia.converter.impl;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openbudget.converter.OBFConverter;
 import org.openbudget.converter.face.BudgetFileReader;
+import org.openbudget.exception.CantReadFileConverterException;
 import org.openbudget.exception.ConverterException;
 import org.openbudget.exception.ExcelConverterException;
 import org.openbudget.exception.SourceTableException;
-import org.openbudget.exception.StandardConverterException;
 import org.openbudget.model.SourceTable;
 import org.openbudget.russia.converter.ConverterUtilsRus;
 import org.openbudget.russia.converter.OBFConverterRus;
 import org.openbudget.utils.ConverterUtils;
-import org.openbudget.utils.Log;
 
 public class XLSReaderRus implements BudgetFileReader {
 
 	@Override
-	public SourceTable createSourceTable(InputStream file)
+	public SourceTable createSourceTable(String fileName)
 			throws ConverterException {
+
+		InputStream stream;
+
+		try {
+
+			stream = new FileInputStream(fileName);
+
+		} catch (IOException e) {
+			throw new CantReadFileConverterException(fileName);
+		}
 
 		SourceTable table = null;
 
-		HSSFWorkbook excelSrc = null;
+		Workbook excelSrc = null;
 
 		try {
-			excelSrc = new HSSFWorkbook(file);
-			OBFConverter.log.postSuccess(OBFConverterRus.text.RU_EN_SUCCESS_XLS_OK);
+			String[] file = fileName.split("\\.");
+			if (file[file.length - 1].equals("xls")) {
+				excelSrc = new HSSFWorkbook(stream);
+			} else if (file[file.length - 1].equals("xlsx")) {
+				excelSrc = new XSSFWorkbook(stream);
+			} else {
+				OBFConverter.log
+						.postError(OBFConverter.text.EXCEPTION_INCORRECT_SOURCE_FILE_FORMAT);
+				throw new CantReadFileConverterException(fileName);
+			}
+
+			OBFConverter.log
+					.postSuccess(OBFConverterRus.text.RU_EN_SUCCESS_XLS_OK);
 		} catch (IOException e) {
 			throw new ExcelConverterException(
 					OBFConverterRus.text.RU_EN_READFILE_OPEN);
@@ -42,16 +65,20 @@ public class XLSReaderRus implements BudgetFileReader {
 		}
 
 		if (excelSrc.getNumberOfSheets() > 1) {
-			OBFConverter.log.postWarn(OBFConverterRus.text.RU_EN_SHEETS_MORE);
+			OBFConverter.log.postError(OBFConverterRus.text.RU_EN_SHEETS_MORE);
 		}
+		
+		OBFConverter.log.postSuccess(OBFConverterRus.text.RU_EN_START_READING, fileName);
 
 		Sheet sheet = excelSrc.getSheetAt(0);
-		OBFConverter.log.postSuccess(OBFConverterRus.text.RU_EN_SUCCESS_SHEET_ONE_OK);
+		OBFConverter.log
+				.postSuccess(OBFConverterRus.text.RU_EN_SUCCESS_SHEET_ONE_OK);
 
 		table = readXLS(sheet);
 
-		if(table!=null){
-			OBFConverter.log.postSuccess(OBFConverterRus.text.RU_EN_SUCCESS_FINISH_SOURCETABLE);
+		if (table != null) {
+			OBFConverter.log
+					.postSuccess(OBFConverterRus.text.RU_EN_SUCCESS_FINISH_SOURCETABLE);
 		}
 		return table;
 	}
@@ -59,16 +86,17 @@ public class XLSReaderRus implements BudgetFileReader {
 	private SourceTable readXLS(Sheet sheet) throws ConverterException {
 		int lastRowIndex = sheet.getLastRowNum();
 		int firstRowIndex = sheet.getFirstRowNum();
-		
-		//define maximum of columns in sheet
+
+		// define maximum of columns in sheet
 		int widthTable = 0;
-		for(int row=0; row<=(lastRowIndex+1);row++){
-			if(sheet.getRow(row)!=null && sheet.getRow(row).getLastCellNum()>widthTable){
-				widthTable=sheet.getRow(row).getLastCellNum();
+		for (int row = 0; row <= (lastRowIndex + 1); row++) {
+			if (sheet.getRow(row) != null
+					&& sheet.getRow(row).getLastCellNum() > widthTable) {
+				widthTable = sheet.getRow(row).getLastCellNum();
 			}
 		}
 
-		SourceTable fullSource = new SourceTable(lastRowIndex+1, widthTable);
+		SourceTable fullSource = new SourceTable(lastRowIndex + 1, widthTable);
 
 		for (int i = 0; i < fullSource.rows(); i++) {
 
@@ -77,9 +105,12 @@ public class XLSReaderRus implements BudgetFileReader {
 			}
 
 		}
-		
-		if(fullSource!=null && fullSource.cols()!=0 && fullSource.rows()!=0){
-			OBFConverter.log.postSuccess(OBFConverterRus.text.RU_EN_SUCCESS_CREATE_SOURCETABLE, fullSource.cols(), fullSource.rows());
+
+		if (fullSource != null && fullSource.cols() != 0
+				&& fullSource.rows() != 0) {
+			OBFConverter.log.postSuccess(
+					OBFConverterRus.text.RU_EN_SUCCESS_CREATE_SOURCETABLE,
+					fullSource.cols(), fullSource.rows());
 		}
 
 		// 0 is name
@@ -89,17 +120,19 @@ public class XLSReaderRus implements BudgetFileReader {
 		// 4 is vid
 		// 5 is amount
 		// 6 is firstRowIndex
-		
-		OBFConverter.log.postSuccess(OBFConverterRus.text.RU_EN_SUCCESS_START_ANALYZE);
-		
+
+		OBFConverter.log
+				.postSuccess(OBFConverterRus.text.RU_EN_SUCCESS_START_ANALYZE);
+
 		int[] colNumbers = ConverterUtilsRus.parseTable(fullSource);
-		
-		if(colNumbers!=null){
-			OBFConverter.log.postSuccess(OBFConverterRus.text.RU_EN_SUCCESS_END_ANALYZE);
+
+		if (colNumbers != null) {
+			OBFConverter.log
+					.postSuccess(OBFConverterRus.text.RU_EN_SUCCESS_END_ANALYZE);
 		} else {
-			throw new SourceTableException("Looks like file contains a lot of errors or incorrect values. I can't identify valuable columns in source file. Check file, fix errors and repeat again.");
+			throw new SourceTableException(OBFConverter.text.SOURCETABLE_ERRORS);
 		}
-		
+
 		// firstRowIndex = colNumbers[6];
 
 		int sumIndexCol = colNumbers[5];
@@ -117,8 +150,7 @@ public class XLSReaderRus implements BudgetFileReader {
 		// int nameIndexCol = lastRightColIndex - 6;
 
 		SourceTable table = new SourceTable(lastRowIndex + 1, 6);
-		
-		
+
 		for (int i = 0; i < table.rows(); i++) {
 
 			try {
@@ -129,13 +161,20 @@ public class XLSReaderRus implements BudgetFileReader {
 				setValue(sheet, table, i, 4, vidIndexCol, true);
 				setValue(sheet, table, i, 5, sumIndexCol, false);
 
-				//values in Amount columns should be converted if possible in Double even if stored as StringCell
-				if(sheet.getRow(i) != null && sheet.getRow(i).getCell(sumIndexCol)!=null && sheet.getRow(i).getCell(sumIndexCol).getCellType() == Cell.CELL_TYPE_STRING){
-					table.addCell(i, 5,
-						ConverterUtilsRus.checkDouble(String.valueOf(sheet.getRow(i).getCell(sumIndexCol).getStringCellValue())));
+				// values in Amount columns should be converted if possible in
+				// Double even if stored as StringCell
+				if (sheet.getRow(i) != null
+						&& sheet.getRow(i).getCell(sumIndexCol) != null
+						&& sheet.getRow(i).getCell(sumIndexCol).getCellType() == Cell.CELL_TYPE_STRING) {
+					table.addCell(
+							i,
+							5,
+							ConverterUtilsRus.checkDouble(String.valueOf(sheet
+									.getRow(i).getCell(sumIndexCol)
+									.getStringCellValue())));
 				}
 			} catch (NumberFormatException e) {
-				
+
 			}
 		}
 
@@ -145,7 +184,7 @@ public class XLSReaderRus implements BudgetFileReader {
 	private void setValue(Sheet sheet, SourceTable table, int i, int j,
 			int index, boolean makeString) throws ConverterException {
 
-//		System.out.println(i);
+		// System.out.println(i);
 		if (sheet.getRow(i) != null && sheet.getRow(i).getCell(index) != null) {
 			Cell cell = sheet.getRow(i).getCell(index);
 
@@ -157,14 +196,36 @@ public class XLSReaderRus implements BudgetFileReader {
 				// table.getCells()[i][j].length()<10?table.getCells()[i][j].length():10));
 			} else if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC
 					|| cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
-				if (makeString)
-					table.addCell(i, j,
-							String.valueOf((long) cell.getNumericCellValue()));
-				else
-					table.addCell(i, j,
-							ConverterUtilsRus.checkDouble(String.valueOf(cell.getNumericCellValue())));
+				if (makeString) {
+					try {
+						table.addCell(i, j, String.valueOf((long) cell
+								.getNumericCellValue()));
+					} catch (IllegalStateException e) {
+						
+						//it needs if formula is a string
+						table.addCell(i, j, ConverterUtilsRus
+								.checkDouble(String.valueOf(cell
+										.getStringCellValue())));
+					}
+				} else {
+					try {
+						// System.out.println(i+" "+j+" "+cell.getNumericCellValue());
+						table.addCell(i, j, ConverterUtilsRus
+								.checkDouble(String.valueOf(cell
+										.getNumericCellValue())));
+					} catch (IllegalStateException e) {
+						//it needs if formula is a string
+						try {
+							table.addCell(i, j, ConverterUtilsRus
+									.checkDouble(String.valueOf(cell
+											.getStringCellValue())));
+						} catch (IllegalStateException e1) {
+							// TODO Auto-generated catch block
+							OBFConverter.log.postError(OBFConverterRus.text.RU_EN_PARSING_ERROR_FORMULA, i+1, j+1, cell.getCellFormula());
+						}
+					}
 
-				// System.out.print("N"+table.getCells()[i][j]);
+				}
 			}
 
 			// System.out.print("|");

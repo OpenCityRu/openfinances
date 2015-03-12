@@ -9,7 +9,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openbudget.converter.CSVSaver;
+import org.openbudget.converter.OBFConverter;
 import org.openbudget.converter.face.Saver;
+import org.openbudget.russia.converter.OBFConverterRus;
 import org.openbudget.russia.model.BudgetItemRus;
 import org.openbudget.russia.model.MetaDataRus;
 import org.openbudget.utils.ConverterUtils;
@@ -86,6 +88,8 @@ public class CSVSaverRus extends CSVSaver implements Saver<BudgetItemRus,MetaDat
 			}
 
 			finish();
+			
+			OBFConverter.log.postSuccess(OBFConverterRus.text.RU_EN_FINISHED, outputFileName);
 
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block

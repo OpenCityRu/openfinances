@@ -11,6 +11,7 @@ import org.openbudget.russia.converter.impl.EconomicRazdelCreator;
 import org.openbudget.russia.converter.impl.GRBSCreator;
 import org.openbudget.russia.converter.impl.SpendingTypeCreator;
 import org.openbudget.russia.converter.impl.XLSReaderRus;
+import org.openbudget.utils.Log;
 import org.openbudget.converter.face.Runnable;
 
 public class SimpleRunner implements Runnable {
@@ -18,19 +19,19 @@ public class SimpleRunner implements Runnable {
 	public static void main(String[] args) throws ConverterException {
 
 		String[][] settings = {
-				{"name","Dachnoe_vedomst_2014_original"},
+				{"name","Vladmirsky_vedomst_2014_original"},
 				{"format","csv"},
 				{"version","1.0"},
 				{"period","2014-01-01"},
-				{"region","Долгое озеро"},
-				{"file","files/Dachnoe_vedomst_2014_original.xls"},
-				{"stage","PR"},
+				{"region","Горелово"},
+				{"file","files/Vladmirsky_vedomst_2014_original.xls"},
+				{"stage","EN"},
 				{"level","M"},
 				{"type","E"},
 		};
 		
 		// defining converter which take XLS file and convert in CSV
-		OBFConverter converter =  new OBFConverterRus();
+		OBFConverter converter =  new OBFConverterRus("text_ru.properties", new Log());
 		
 		InputSettings isettings = new InputSettings(settings);
 		
@@ -44,8 +45,6 @@ public class SimpleRunner implements Runnable {
 		converter.addModelCreatorSample(new SpendingTypeCreator());
 		
 		converter.convert();
-		
-		System.out.println("Finished.");
 		
 	}
 

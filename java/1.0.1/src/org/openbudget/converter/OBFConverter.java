@@ -142,7 +142,7 @@ abstract public class OBFConverter<T extends BudgetItem, M extends MetaData> {
 		beforeReadFile(); 
 		//... and now actions
 		
-		// check file
+		// check file , stream should be saved in OBFConverter
 		try {
 
 			stream = new FileInputStream(settings.getSourceFilePath());
@@ -157,7 +157,7 @@ abstract public class OBFConverter<T extends BudgetItem, M extends MetaData> {
 		beforeCreateSourceTable();
 		//... and now standard actions (correct for all OBF converters that match requirements)
 		
-		matrix = fileReader.createSourceTable(stream);
+		matrix = fileReader.createSourceTable(settings.getSourceFilePath());
 		
 		for(ModelsCreator model : modelsCreators){
 			
