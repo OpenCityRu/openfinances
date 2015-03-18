@@ -21,7 +21,7 @@ public class SimpleRunner implements Runnable {
 		String name="output";
 		String file="input.xls";
 		String year="2015";
-		String region="Дачное";
+		String region="Unknown region";
 				
 		int i=0;
 		for(String arg :args){
@@ -34,9 +34,9 @@ public class SimpleRunner implements Runnable {
 			if(arg.equals("-year")){
 				year=args[i+1];
 			}
-//			if(arg.equals("-region")){
-//				region=args[i+1];
-//			}
+			if(arg.equals("-region")){
+				region=args[i+1];
+			}
 			i++;
 		}
 
