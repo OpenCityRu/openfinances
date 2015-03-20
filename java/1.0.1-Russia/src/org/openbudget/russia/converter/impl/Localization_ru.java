@@ -1,5 +1,8 @@
 package org.openbudget.russia.converter.impl;
 
+import java.util.ArrayList;
+import java.util.Properties;
+
 import org.openbudget.converter.Localization;
 import org.openbudget.converter.Localization_en;
 import org.openbudget.exception.ConverterException;
@@ -70,6 +73,15 @@ public class Localization_ru extends Localization {
 	public static Localization getInstance(String propertiesFileName) throws ConverterException{
 		
 		getInstance(propertiesFileName, new Localization_ru());
+		
+		return new Localization_ru();
+	}
+	
+	public static Localization getInstance(Properties properties, Properties baseProperies) throws ConverterException{
+		
+		getInstance(properties, new Localization_ru());
+		
+		setInstanceBase(baseProperies);
 		
 		return new Localization_ru();
 	}

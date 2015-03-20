@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -110,6 +111,30 @@ public class Localization {
 					field.set(null, value);
 				}
 			}
+		}
+
+	}
+
+	protected static void setInstanceBase(Properties properties) {
+		
+		getInstance(properties, new Localization());
+		
+	}
+	
+	protected static <T> void getInstance(Properties properties, T clazz) {
+
+		if (properties != null && clazz != null) {
+
+			try {
+				
+				setProperties(properties, clazz);
+				
+			} catch (IllegalArgumentException e) {
+
+			} catch (IllegalAccessException e) {
+
+			}
+
 		}
 
 	}

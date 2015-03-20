@@ -11,7 +11,7 @@ import org.openbudget.russia.converter.impl.EconomicRazdelCreator;
 import org.openbudget.russia.converter.impl.GRBSCreator;
 import org.openbudget.russia.converter.impl.SpendingTypeCreator;
 import org.openbudget.russia.converter.impl.XLSReaderRus;
-import org.openbudget.utils.Log;
+import org.openbudget.utils.SystemLogger;
 import org.openbudget.converter.face.Runnable;
 
 public class SimpleRunner implements Runnable {
@@ -53,7 +53,7 @@ public class SimpleRunner implements Runnable {
 		};
 		
 		// defining converter which take XLS file and convert in CSV
-		OBFConverter converter =  new OBFConverterRus("text_ru.properties", new Log());
+		OBFConverter converter =  new OBFConverterRus("text_ru.properties", new SystemLogger());
 		
 		InputSettings isettings = new InputSettings(settings);
 		

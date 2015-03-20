@@ -21,20 +21,26 @@ import org.openbudget.russia.converter.OBFConverterRus;
 import org.openbudget.utils.ConverterUtils;
 
 public class XLSReaderRus implements BudgetFileReader {
+	
+	/**
+	 * 0 is name
+		1 is grbs
+		2 is razdel
+		3 is article
+		4 is vid
+		5 is amount
+		6 is firstRowIndex
+	 */
+	protected int[] columns;
 
 	@Override
-	public SourceTable createSourceTable(String fileName)
+	public int[] getColumnNumbers() throws ConverterException {
+		return columns;
+	}
+	
+	@Override
+	public SourceTable createSourceTable(InputStream stream, String fileName)
 			throws ConverterException {
-
-		InputStream stream;
-
-		try {
-
-			stream = new FileInputStream(fileName);
-
-		} catch (IOException e) {
-			throw new CantReadFileConverterException(fileName);
-		}
 
 		SourceTable table = null;
 
@@ -126,6 +132,8 @@ public class XLSReaderRus implements BudgetFileReader {
 
 		int[] colNumbers = ConverterUtilsRus.parseTable(fullSource);
 
+		columns = colNumbers;
+		
 		if (colNumbers != null) {
 			OBFConverter.log
 					.postSuccess(OBFConverterRus.text.RU_EN_SUCCESS_END_ANALYZE);

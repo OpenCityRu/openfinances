@@ -12,6 +12,7 @@ import org.openbudget.converter.face.ModelsCreator;
 import org.openbudget.converter.face.Saver;
 import org.openbudget.exception.CantReadFileConverterException;
 import org.openbudget.exception.ConverterException;
+import org.openbudget.exception.InputSettingsException;
 import org.openbudget.exception.StandardConverterException;
 import org.openbudget.model.BudgetItem;
 import org.openbudget.model.GlobalSettings;
@@ -19,7 +20,8 @@ import org.openbudget.model.InputSettings;
 import org.openbudget.model.MetaData;
 import org.openbudget.model.SourceTable;
 import org.openbudget.utils.ConverterUtils;
-import org.openbudget.utils.Log;
+import org.openbudget.utils.Logger;
+import org.openbudget.utils.SystemLogger;
 
 /**
  * Base class Converter doesn't have realization. All specific converters must have own realization.
@@ -39,7 +41,7 @@ abstract public class OBFConverter<T extends BudgetItem, M extends MetaData> {
 	
 	protected static GlobalSettings globalSettings;
 	public static Localization text;
-	public static Log log;
+	public static Logger log;
 
 	//interfaces
 	protected BudgetFileReader fileReader;
@@ -56,7 +58,7 @@ abstract public class OBFConverter<T extends BudgetItem, M extends MetaData> {
 	protected ArrayList<T> budgetItems;
 	protected M metadata;
 	
-	public OBFConverter(GlobalSettings globalSettings, Localization texts, Log logger) throws ConverterException{
+	public OBFConverter(GlobalSettings globalSettings, Localization texts, Logger logger) throws ConverterException{
 		
 		//static 
 		OBFConverter.globalSettings = globalSettings;
@@ -71,6 +73,9 @@ abstract public class OBFConverter<T extends BudgetItem, M extends MetaData> {
 		
 		//temporal
 		this.settings = settings;
+		if(settings.getSourceFilePath()==null || settings.getSourceFilePath().isEmpty()){
+			OBFConverter.log.postWarn(text.EXCEPTION_INPUT_SETTINGS_UNKNOWN_SOURCE_FILE);
+		}
 		
 		//interfaces
 		this.fileReader = fileReader;
@@ -136,6 +141,8 @@ abstract public class OBFConverter<T extends BudgetItem, M extends MetaData> {
 	 */
 	public final void convert() throws ConverterException{
 		
+		OBFConverter.log.reset();
+		
 		//stage 1: preparation
 		
 		//developer can create own "beforeReadFile" additional method that could be invoked before reading stream
@@ -145,7 +152,9 @@ abstract public class OBFConverter<T extends BudgetItem, M extends MetaData> {
 		// check file , stream should be saved in OBFConverter
 		try {
 
-			stream = new FileInputStream(settings.getSourceFilePath());
+			if(stream==null){
+				stream = new FileInputStream(settings.getSourceFilePath());
+			}
 
 		} catch (IOException e) {
 			throw new CantReadFileConverterException(settings.getSourceFilePath());
@@ -157,7 +166,7 @@ abstract public class OBFConverter<T extends BudgetItem, M extends MetaData> {
 		beforeCreateSourceTable();
 		//... and now standard actions (correct for all OBF converters that match requirements)
 		
-		matrix = fileReader.createSourceTable(settings.getSourceFilePath());
+		matrix = fileReader.createSourceTable(stream, settings.getSourceFilePath());
 		
 		for(ModelsCreator model : modelsCreators){
 			
@@ -201,8 +210,6 @@ abstract public class OBFConverter<T extends BudgetItem, M extends MetaData> {
 		//... and now standard actions (correct for all OBF converters that match requirements)
 		
 		saver.save(budgetItems, metadata, settings.getOutputFileName());
-		
-		OBFConverter.log.reset();
 		
 	}
 
@@ -349,7 +356,7 @@ abstract public class OBFConverter<T extends BudgetItem, M extends MetaData> {
 	 * Protected because only developer can use it.
 	 * @return
 	 */
-	protected InputStream getStream() {
+	public InputStream getStream() {
 		return stream;
 	}
 
@@ -357,7 +364,7 @@ abstract public class OBFConverter<T extends BudgetItem, M extends MetaData> {
 	 * This is super and not-safe feature. Protected because only developer can use it.
 	 * @param stream
 	 */
-	protected void setStream(InputStream stream) {
+	public void setStream(InputStream stream) {
 		this.stream = stream;
 	}
 
@@ -365,7 +372,7 @@ abstract public class OBFConverter<T extends BudgetItem, M extends MetaData> {
 	 * Protected because only developer can use it.
 	 * @return
 	 */
-	protected SourceTable getMatrix() {
+	public SourceTable getMatrix() {
 		return matrix;
 	}
 
@@ -381,7 +388,7 @@ abstract public class OBFConverter<T extends BudgetItem, M extends MetaData> {
 	 * Protected because only developer can use it.
 	 * @return
 	 */
-	protected ArrayList<T> getBudgetItems() {
+	public ArrayList<T> getBudgetItems() {
 		return budgetItems;
 	}
 

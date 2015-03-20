@@ -51,10 +51,8 @@ public class InputSettings {
 		} 
 		
 		//save source path
+		//error (null or empty) should be checked in OBFConverter
 		sourceFilePath = ConverterUtils.getValueByKey(params, "file");
-		if(sourceFilePath==null || sourceFilePath.isEmpty()){
-			throw new InputSettingsException(true, OBFConverter.text.EXCEPTION_INPUT_SETTINGS_UNKNOWN_SOURCE_FILE);
-		}
 		
 		//save output name
 		outputFileName = ConverterUtils.getValueByKey(params, "name");

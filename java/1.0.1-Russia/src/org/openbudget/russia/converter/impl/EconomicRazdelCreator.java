@@ -10,7 +10,6 @@ import org.openbudget.model.SourceTable;
 import org.openbudget.russia.converter.OBFConverterRus;
 import org.openbudget.russia.model.EconomicRazdel;
 import org.openbudget.utils.ConverterUtils;
-import org.openbudget.utils.Log;
 
 public class EconomicRazdelCreator implements ModelsCreator<EconomicRazdel> {
 

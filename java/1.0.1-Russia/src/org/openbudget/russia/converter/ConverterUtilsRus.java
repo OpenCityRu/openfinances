@@ -11,7 +11,6 @@ import org.openbudget.converter.OBFConverter;
 import org.openbudget.exception.BrokenBudgetItemConverterException;
 import org.openbudget.model.SourceTable;
 import org.openbudget.russia.model.BudgetItemRus;
-import org.openbudget.utils.Log;
 
 public class ConverterUtilsRus {
 

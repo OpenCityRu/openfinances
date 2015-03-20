@@ -1,6 +1,7 @@
 package org.openbudget.russia.converter;
 
 import java.util.ArrayList;
+import java.util.Properties;
 
 import org.openbudget.converter.Localization;
 import org.openbudget.converter.OBFConverter;
@@ -23,7 +24,8 @@ import org.openbudget.russia.model.GRBS;
 import org.openbudget.russia.model.MetaDataRus;
 import org.openbudget.russia.model.SpendingType;
 import org.openbudget.utils.ConverterUtils;
-import org.openbudget.utils.Log;
+import org.openbudget.utils.Logger;
+import org.openbudget.utils.SystemLogger;
 
 /**
  * Specific OBF converter for russian budgets.
@@ -40,13 +42,19 @@ public class OBFConverterRus extends OBFConverter<BudgetItemRus, MetaDataRus> {
 
 	public OBFConverterRus() throws ConverterException {
 		
-		super(new GlobalSettingsRus(), Localization_ru.getInstance("text_ru.properties"), new Log());
+		super(new GlobalSettingsRus(), Localization_ru.getInstance("text_ru.properties"), new SystemLogger());
 
 	}
 	
-	public OBFConverterRus(String propertyFile, Log log) throws ConverterException {
+	public OBFConverterRus(String propertyFile, Logger log) throws ConverterException {
 		
 		super(new GlobalSettingsRus(), Localization_ru.getInstance(propertyFile), log);
+
+	}
+	
+	public OBFConverterRus(Properties property, Properties baseProperties, Logger log) throws ConverterException {
+		
+		super(new GlobalSettingsRus(), Localization_ru.getInstance(property, baseProperties), log);
 
 	}
 
