@@ -20,24 +20,24 @@ public class SystemLogger extends Logger{
 	 * 
 	 */
 	@Override
-	public void postWarn(String message, Object... objects) {
-		post(" !! WARN !!: ", message, LogMessage.TYPE_WARNING, objects);
+	public LogMessage postWarn(String message, Object... objects) {
+		return post(" !! WARN !!: ", message, LogMessage.TYPE_WARNING, objects);
 	}
 	
 	/**
 	 * 
 	 */
 	@Override
-	public void postError(String message, Object... objects) {
-		post(" !! ERROR !!: ", message, LogMessage.TYPE_ERROR, objects);
+	public LogMessage postError(String message, Object... objects) {
+		return post(" !! ERROR !!: ", message, LogMessage.TYPE_ERROR, objects);
 	}
 	
 	/**
 	 * 
 	 */
 	@Override
-	public void postSuccess(String message, Object... objects) {
-		post(" !! SUCCESS !!: ", message, LogMessage.TYPE_SUCCESS, objects);
+	public LogMessage postSuccess(String message, Object... objects) {
+		return post(" !! SUCCESS !!: ", message, LogMessage.TYPE_SUCCESS, objects);
 	}
 
 	@Override

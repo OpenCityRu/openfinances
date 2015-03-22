@@ -22,7 +22,7 @@ public class SimpleRunner implements Runnable {
 		String file="input.xls";
 		String year="2015";
 		String region="Unknown region";
-				
+				 
 		int i=0;
 		for(String arg :args){
 			if(arg.equals("-name")){

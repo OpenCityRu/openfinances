@@ -377,7 +377,7 @@ public class ConverterUtilsRus {
 
 		if (firstRowIndex == null) {
 			OBFConverter.log
-					.postError(OBFConverterRus.text.RU_EN_PARSING_FIRST_ROW_NOTFOUND);
+					.postError(OBFConverterRus.text.RU_EN_PARSING_FIRST_ROW_NOTFOUND).setPosition(firstRowIndex, 0);
 			result[6] = -1;
 		} else {
 			result[6] = firstRowIndex;

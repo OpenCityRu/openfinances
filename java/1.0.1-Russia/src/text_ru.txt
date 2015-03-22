@@ -55,4 +55,8 @@ EXCEPTION_INCORRECT_BUDGETITEM=Не корректная строка бюдже
 RU_EN_ANALYZING_REPORT_START=\n====Отчет об анализе файла========\nПожалуйста, убедитесь, что ниже действительно представлены корректные первые две строки файла бюджета.\nНайдены:    \t| Наименование \t| ГРБС  \t| Раздел \t| Статья  \t| Вид расходов  \t| Сумма |\nЗаголовок: \t|
 RU_EN_ANALYZING_REPORT_END=|\n\n====Конец анализа========\n
 RU_EN_ANALYZING_REPORT_2_ROW=\nВторая строка:   | 
-RU_EN_ANALYZING_REPORT_1_ROW=Первая строка:   |  
+RU_EN_ANALYZING_REPORT_1_ROW=Первая строка:   |
+RU_EN_ARTICLES_NOT_FOUND=Статьи расходов не найдены.
+RU_EN_GRBS_NOT_FOUND=ГРБС не найдены.
+RU_EN_RAZDELS_NOT_FOUND=Разделы не найдены.
+RU_EN_SPENDINGTYPES_NOT_FOUND=Виды расходов не найдены.  

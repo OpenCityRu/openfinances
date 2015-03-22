@@ -6,16 +6,19 @@ public abstract class Logger {
 	
 	protected ArrayList<LogMessage> messages = new ArrayList<LogMessage>();
 	
-	abstract public void postError(String message, Object... objects);
+	abstract public LogMessage postError(String message, Object... objects);
 	
-	abstract public void postWarn(String message, Object... objects);
+	abstract public LogMessage postWarn(String message, Object... objects);
 	
-	abstract public void postSuccess(String message, Object... objects);
+	abstract public LogMessage postSuccess(String message, Object... objects);
 	
 	abstract public void notify(String message);
 
-	protected void post(String prefix, String message, int type,
+	protected LogMessage post(String prefix, String message, int type,
 			Object[] objects) {
+		
+		LogMessage log = LogMessage.getEmpty();
+		
 		if (objects != null && objects.length!=0) {
 			int i = 0;
 			String s = "";
@@ -25,14 +28,16 @@ public abstract class Logger {
 			}
 
 			if (isUniqueMessage(message, type)) {
-				messages.add(new LogMessage(message, type));
+				log = new LogMessage(message, type);
+				messages.add(log);
 				notify(prefix + message);
 			}
 		} else if (objects.length==0 && isUniqueMessage(message, type)) {
-			messages.add(new LogMessage(message, type));
+			log = new LogMessage(message, type);
+			messages.add(log);
 			notify(prefix + message);
 		}
-		
+		return log;
 	}
 	
 	protected boolean isUniqueMessage(String message, int type) {
@@ -53,40 +58,6 @@ public abstract class Logger {
 	
 	public ArrayList<LogMessage> getMessages() {
 		return messages;
-	}
-	/**
-	 * types: 0 - error, 1 - success, 2 - warnings
-	 * @author inxaoc
-	 *
-	 */
-	public class LogMessage {
-		
-		public static final int TYPE_ERROR = 0;
-		public static final int TYPE_SUCCESS = 1;
-		public static final int TYPE_WARNING = 2;
-		
-		protected String message;
-		protected int type;
-		
-		public LogMessage(String message, int type) {
-			super();
-			this.message = message;
-			this.type = type;
-		}
-		public String getMessage() {
-			return message;
-		}
-		public void setMessage(String message) {
-			this.message = message;
-		}
-		public int getType() {
-			return type;
-		}
-		public void setType(int type) {
-			this.type = type;
-		}
-		
-		
 	}
 
 }

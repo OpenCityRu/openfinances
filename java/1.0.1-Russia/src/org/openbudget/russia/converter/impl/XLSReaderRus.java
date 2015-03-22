@@ -71,7 +71,7 @@ public class XLSReaderRus implements BudgetFileReader {
 		}
 
 		if (excelSrc.getNumberOfSheets() > 1) {
-			OBFConverter.log.postError(OBFConverterRus.text.RU_EN_SHEETS_MORE);
+			OBFConverter.log.postWarn(OBFConverterRus.text.RU_EN_SHEETS_MORE);
 		}
 		
 		OBFConverter.log.postSuccess(OBFConverterRus.text.RU_EN_START_READING, fileName);
@@ -229,7 +229,7 @@ public class XLSReaderRus implements BudgetFileReader {
 											.getStringCellValue())));
 						} catch (IllegalStateException e1) {
 							// TODO Auto-generated catch block
-							OBFConverter.log.postError(OBFConverterRus.text.RU_EN_PARSING_ERROR_FORMULA, i+1, j+1, cell.getCellFormula());
+							OBFConverter.log.postError(OBFConverterRus.text.RU_EN_PARSING_ERROR_FORMULA, i+1, j+1, cell.getCellFormula()).setPosition(i, j);
 						}
 					}
 

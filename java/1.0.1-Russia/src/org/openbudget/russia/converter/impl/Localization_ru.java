@@ -7,6 +7,11 @@ import org.openbudget.exception.ConverterException;
 
 public class Localization_ru extends Localization {
 	
+	public static String RU_EN_ARTICLES_NOT_FOUND = "Articles are not found.";
+	public static String RU_EN_GRBS_NOT_FOUND = "GRBS are not found.";
+	public static String RU_EN_RAZDELS_NOT_FOUND = "Razdels are not found.";
+	public static String RU_EN_SPENDINGTYPES_NOT_FOUND = "Spending types are not found.";
+	
 	public static String RU_EN_ANALYZING_REPORT_END = "|\n\n====END OF ANALYZING RESULT========\n";
 	public static String RU_EN_ANALYZING_REPORT_2_ROW = "\nSecond row:   | ";
 	public static String RU_EN_ANALYZING_REPORT_1_ROW = "First row:   | ";

@@ -45,7 +45,7 @@ public class EconomicRazdelCreator implements ModelsCreator<EconomicRazdel> {
 								.postError(
 										OBFConverterRus.text.RU_EN_CONVERTING_RAZDEL_SYMBOLS_SERIOUS,
 										razdel.getCode(),
-										razdel.getSourceRowNumber());
+										razdel.getSourceRowNumber()+1);
 						serious = true;
 					} else {
 
@@ -53,7 +53,7 @@ public class EconomicRazdelCreator implements ModelsCreator<EconomicRazdel> {
 								.postWarn(
 										OBFConverterRus.text.RU_EN_CONVERTING_RAZDEL_SYMBOLS,
 										razdel.getCode(),
-										razdel.getSourceRowNumber());
+										razdel.getSourceRowNumber()+1);
 						problem = true;
 						razdel.setRazdelCode("0"
 								+ razdel.getCode().substring(0, 1));
