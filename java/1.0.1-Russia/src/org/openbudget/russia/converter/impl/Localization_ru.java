@@ -1,14 +1,20 @@
 package org.openbudget.russia.converter.impl;
 
-import java.util.ArrayList;
 import java.util.Properties;
 
 import org.openbudget.converter.Localization;
-import org.openbudget.converter.Localization_en;
 import org.openbudget.exception.ConverterException;
 
 public class Localization_ru extends Localization {
 	
+	public static String RU_EN_ANALYZING_REPORT_END = "|\n\n====END OF ANALYZING RESULT========\n";
+	public static String RU_EN_ANALYZING_REPORT_2_ROW = "\nSecond row:   | ";
+	public static String RU_EN_ANALYZING_REPORT_1_ROW = "First row:   | ";
+	public static String RU_EN_ANALYZING_REPORT_START = "\n====START OF ANALYZING RESULT========\n"
+			+ "Please make sure that below 2 correct budget rows from the file.\n"
+			+ "We found:    | Name \t| GRBS  \t| Razdel \t| Article  \t| Spending Type  \t| Amount |\n"
+			+ "File's header: | ";
+
 	public static String RU_EN_READFILE_NOT_BUDGETITEM = "Row %0% is identified as a not budget item and missed.";
 	
 	public static String RU_EN_GRBS = "ГРБС";

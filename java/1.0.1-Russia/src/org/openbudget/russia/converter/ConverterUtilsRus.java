@@ -171,7 +171,7 @@ public class ConverterUtilsRus {
 		}
 
 		OBFConverter.log
-				.postWarn(OBFConverterRus.text.RU_EN_PARSING_READY_FIND);
+				.postSuccess(OBFConverterRus.text.RU_EN_PARSING_READY_FIND);
 
 		// find classifications / make confident
 		// this list will be changed
@@ -330,7 +330,7 @@ public class ConverterUtilsRus {
 		// - Spending Type (length could be 3 or 5), string, number or unknown
 		// - Razdel (length could be 3,4,6), could be string or number
 
-		// serachClassificationSmart(newList, original, result);
+		// searchClassificationSmart(newList, original, result);
 
 		if (result[0] != -1 && result[5] != -1) {
 
@@ -388,10 +388,8 @@ public class ConverterUtilsRus {
 				return null;
 			}
 		}
-		String resultStr = "\n====START OF ANALYZING RESULT========\n"
-				+ "Please check that results of extracting data will be as you expected.\n"
-				+ "We found:    | Name \t| GRBS  \t| Razdel \t| Article  \t| Spending Type  \t| Amount |\n"
-				+ "Your header: | "
+		String resultStr = OBFConverterRus.text.RU_EN_ANALYZING_REPORT_START
+				
 				+ fullSource.getCells()[firstRowIndex - 1][result[0]]
 				+ "|"
 				+ fullSource.getCells()[firstRowIndex - 1][result[1]]
@@ -404,7 +402,9 @@ public class ConverterUtilsRus {
 				+ "|"
 				+ fullSource.getCells()[firstRowIndex - 1][result[5]]
 				+ "|\n"
-				+ "First row:   | "
+				
+				+ OBFConverterRus.text.RU_EN_ANALYZING_REPORT_1_ROW
+				
 				+ fullSource.getCells()[firstRowIndex][result[0]]
 				+ "|"
 				+ fullSource.getCells()[firstRowIndex][result[1]]
@@ -416,7 +416,9 @@ public class ConverterUtilsRus {
 				+ fullSource.getCells()[firstRowIndex][result[4]]
 				+ "|"
 				+ fullSource.getCells()[firstRowIndex][result[5]]
-				+ "\nSecond row:   | "
+						
+				+ OBFConverterRus.text.RU_EN_ANALYZING_REPORT_2_ROW
+				
 				+ fullSource.getCells()[firstRowIndex+1][result[0]]
 				+ "|"
 				+ fullSource.getCells()[firstRowIndex+1][result[1]]
@@ -428,13 +430,14 @@ public class ConverterUtilsRus {
 				+ fullSource.getCells()[firstRowIndex+1][result[4]]
 				+ "|"
 				+ fullSource.getCells()[firstRowIndex+1][result[5]]
-				+ "|\n\n====END OF ANALYZING RESULT========\n";
+						
+				+ OBFConverterRus.text.RU_EN_ANALYZING_REPORT_END;
 
 		OBFConverter.log.postWarn(resultStr);
 		return result;
 	}
 
-	private static void serachClassificationSmart(List<double[]> newList,
+	private static void searchClassificationSmart(List<double[]> newList,
 			List<double[]> original, int[] result) {
 		OBFConverter.log
 				.postWarn(OBFConverterRus.text.RU_EN_PARSING_CLASSIFICATIONS);

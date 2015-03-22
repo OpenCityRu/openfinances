@@ -28,7 +28,7 @@ public abstract class Logger {
 				messages.add(new LogMessage(message, type));
 				notify(prefix + message);
 			}
-		} else if (objects.length!=0 && isUniqueMessage(message, type)) {
+		} else if (objects.length==0 && isUniqueMessage(message, type)) {
 			messages.add(new LogMessage(message, type));
 			notify(prefix + message);
 		}

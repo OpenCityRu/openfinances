@@ -17,7 +17,7 @@ import org.openbudget.russia.model.MetaDataRus;
 import org.openbudget.utils.ConverterUtils;
 
 public class CSVSaverRus extends CSVSaver implements Saver<BudgetItemRus,MetaDataRus> {
-
+ 
 	@Override
 	public void save(ArrayList<BudgetItemRus> items, MetaDataRus metadata, String outputFileName) {
 		
