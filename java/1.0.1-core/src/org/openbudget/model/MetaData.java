@@ -1,6 +1,8 @@
 package org.openbudget.model;
 
-public class MetaData {
+import java.io.Serializable;
+
+public class MetaData  implements Serializable{
 	
 	/**
 	 * Use special international codes of currencies

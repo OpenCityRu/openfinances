@@ -1,11 +1,13 @@
 package org.openbudget.utils;
 
+import java.io.Serializable;
+
 /**
  * types: 0 - error, 1 - success, 2 - warnings
  * @author inxaoc
  *
  */
-public class LogMessage {
+public class LogMessage implements Serializable{
 	public static final int TYPE_ERROR = 0;
 	public static final int TYPE_SUCCESS = 1;
 	public static final int TYPE_WARNING = 2;

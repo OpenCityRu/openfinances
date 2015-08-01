@@ -1,5 +1,7 @@
 package org.openbudget.model;
 
-public abstract class Dimension {
+import java.io.Serializable;
+
+public abstract class Dimension  implements Serializable{
 
 }

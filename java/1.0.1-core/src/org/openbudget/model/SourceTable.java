@@ -1,6 +1,8 @@
 package org.openbudget.model;
 
-public class SourceTable {
+import java.io.Serializable;
+
+public class SourceTable  implements Serializable{
 	
 protected String[][] cells;
 	

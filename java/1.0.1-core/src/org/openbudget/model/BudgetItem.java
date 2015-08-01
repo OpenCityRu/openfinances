@@ -1,5 +1,6 @@
 package org.openbudget.model;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -11,7 +12,7 @@ import org.openbudget.converter.OBFConverter;
  * @author inxaoc
  *
  */
-abstract public class BudgetItem {
+abstract public class BudgetItem implements Serializable{
 	
 	/**
 	 * constants to define type, level, stage securely.

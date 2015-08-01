@@ -1,6 +1,8 @@
 package org.openbudget.model;
 
-public class GlobalSettings {
+import java.io.Serializable;
+
+public class GlobalSettings  implements Serializable {
 	
 	public GlobalSettings(String currentVersion, String[] formatTypes) {
 		this.currentVersion = currentVersion;

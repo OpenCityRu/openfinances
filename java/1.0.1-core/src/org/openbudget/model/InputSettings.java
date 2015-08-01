@@ -1,5 +1,7 @@
 package org.openbudget.model;
 
+import java.io.Serializable;
+
 import org.openbudget.converter.OBFConverter;
 import org.openbudget.exception.ConverterException;
 import org.openbudget.exception.InputSettingsException;
@@ -10,7 +12,7 @@ import org.openbudget.utils.ConverterUtils;
  * @author inxaoc
  *
  */
-public class InputSettings {
+public class InputSettings  implements Serializable{
 
 	//all data here from params
 	protected String version;
