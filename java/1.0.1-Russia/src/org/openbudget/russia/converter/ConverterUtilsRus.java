@@ -388,50 +388,57 @@ public class ConverterUtilsRus {
 				return null;
 			}
 		}
-		String resultStr = OBFConverterRus.text.RU_EN_ANALYZING_REPORT_START
-				
-				+ fullSource.getCells()[firstRowIndex - 1][result[0]]
-				+ "|"
-				+ fullSource.getCells()[firstRowIndex - 1][result[1]]
-				+ "|"
-				+ fullSource.getCells()[firstRowIndex - 1][result[2]]
-				+ "|"
-				+ fullSource.getCells()[firstRowIndex - 1][result[3]]
-				+ "|"
-				+ fullSource.getCells()[firstRowIndex - 1][result[4]]
-				+ "|"
-				+ fullSource.getCells()[firstRowIndex - 1][result[5]]
-				+ "|\n"
-				
-				+ OBFConverterRus.text.RU_EN_ANALYZING_REPORT_1_ROW
-				
-				+ fullSource.getCells()[firstRowIndex][result[0]]
-				+ "|"
-				+ fullSource.getCells()[firstRowIndex][result[1]]
-				+ "|"
-				+ fullSource.getCells()[firstRowIndex][result[2]]
-				+ "|"
-				+ fullSource.getCells()[firstRowIndex][result[3]]
-				+ "|"
-				+ fullSource.getCells()[firstRowIndex][result[4]]
-				+ "|"
-				+ fullSource.getCells()[firstRowIndex][result[5]]
-						
-				+ OBFConverterRus.text.RU_EN_ANALYZING_REPORT_2_ROW
-				
-				+ fullSource.getCells()[firstRowIndex+1][result[0]]
-				+ "|"
-				+ fullSource.getCells()[firstRowIndex+1][result[1]]
-				+ "|"
-				+ fullSource.getCells()[firstRowIndex+1][result[2]]
-				+ "|"
-				+ fullSource.getCells()[firstRowIndex+1][result[3]]
-				+ "|"
-				+ fullSource.getCells()[firstRowIndex+1][result[4]]
-				+ "|"
-				+ fullSource.getCells()[firstRowIndex+1][result[5]]
-						
-				+ OBFConverterRus.text.RU_EN_ANALYZING_REPORT_END;
+		String resultStr = "";
+		try {
+			resultStr = OBFConverterRus.text.RU_EN_ANALYZING_REPORT_START
+					
+					+ fullSource.getCells()[firstRowIndex - 1][result[0]]
+					+ "|"
+					+ fullSource.getCells()[firstRowIndex - 1][result[1]]
+					+ "|"
+					+ fullSource.getCells()[firstRowIndex - 1][result[2]]
+					+ "|"
+					+ fullSource.getCells()[firstRowIndex - 1][result[3]]
+					+ "|"
+					+ fullSource.getCells()[firstRowIndex - 1][result[4]]
+					+ "|"
+					+ fullSource.getCells()[firstRowIndex - 1][result[5]]
+					+ "|\n"
+					
+					+ OBFConverterRus.text.RU_EN_ANALYZING_REPORT_1_ROW
+					
+					+ fullSource.getCells()[firstRowIndex][result[0]]
+					+ "|"
+					+ fullSource.getCells()[firstRowIndex][result[1]]
+					+ "|"
+					+ fullSource.getCells()[firstRowIndex][result[2]]
+					+ "|"
+					+ fullSource.getCells()[firstRowIndex][result[3]]
+					+ "|"
+					+ fullSource.getCells()[firstRowIndex][result[4]]
+					+ "|"
+					+ fullSource.getCells()[firstRowIndex][result[5]]
+							
+					+ OBFConverterRus.text.RU_EN_ANALYZING_REPORT_2_ROW
+					
+					+ fullSource.getCells()[firstRowIndex+1][result[0]]
+					+ "|"
+					+ fullSource.getCells()[firstRowIndex+1][result[1]]
+					+ "|"
+					+ fullSource.getCells()[firstRowIndex+1][result[2]]
+					+ "|"
+					+ fullSource.getCells()[firstRowIndex+1][result[3]]
+					+ "|"
+					+ fullSource.getCells()[firstRowIndex+1][result[4]]
+					+ "|"
+					+ fullSource.getCells()[firstRowIndex+1][result[5]]
+							
+					+ OBFConverterRus.text.RU_EN_ANALYZING_REPORT_END;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			
+			OBFConverter.log
+			.postError("Ошибка определения структуры таблицы.");
+		}
 
 		OBFConverter.log.postWarn(resultStr);
 		return result;
